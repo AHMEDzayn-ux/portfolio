@@ -1,4 +1,5 @@
 import { AmbientBackground } from "@/components/ambient-background";
+import { ScrollSpine } from "@/components/motion/scroll-spine";
 import { SiteNav } from "@/components/nav/site-nav";
 import { Hero } from "@/components/sections/hero";
 import { About } from "@/components/sections/about";
@@ -35,6 +36,7 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <AmbientBackground />
+      <ScrollSpine />
       <SiteNav />
       <main className="flex-1">
         <Hero profile={profile} />

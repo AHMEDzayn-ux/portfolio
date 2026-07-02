@@ -17,7 +17,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
   })).filter((group) => group.items.length > 0);
 
   return (
-    <section id="skills" className="mx-auto max-w-4xl px-6 py-14 sm:py-16">
+    <section id="skills" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
       <Reveal>
         <p className="text-sm font-medium uppercase tracking-[0.3em] text-brand">
           Skills
@@ -37,7 +37,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
               {group.items.map((skill) => (
                 <li
                   key={skill.id}
-                  className="rounded-full border border-border/70 bg-secondary/40 px-4 py-2 text-sm text-foreground/80 transition-colors hover:border-brand/50 hover:text-foreground"
+                  className="rounded-full border border-border bg-secondary/40 px-4 py-2 text-sm text-foreground/80 transition-colors hover:border-brand/50 hover:text-foreground"
                 >
                   {skill.name}
                 </li>

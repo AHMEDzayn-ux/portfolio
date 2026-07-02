@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { getLenisInstance } from "@/lib/lenis-instance";
@@ -21,6 +22,7 @@ export function SiteNav() {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
   const lastY = useRef(0);
 
   useEffect(() => {
@@ -82,18 +84,39 @@ export function SiteNav() {
           Ahmedh<span className="text-brand">.</span>
         </Link>
 
-        <nav className="hidden items-center gap-5 lg:flex">
+        <nav
+          className="hidden items-center gap-0.5 lg:flex"
+          onPointerLeave={() => setHoveredHref(null)}
+        >
           {LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className={`text-sm transition-colors ${
+              onPointerEnter={() => setHoveredHref(link.href)}
+              className={`relative rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                 scrolled
                   ? "text-foreground/70 hover:text-foreground"
                   : "text-white/70 hover:text-white"
               }`}
             >
+              <AnimatePresence>
+                {hoveredHref === link.href && (
+                  <motion.span
+                    layoutId="nav-hover-pill"
+                    className={`absolute inset-0 -z-10 rounded-full ${
+                      scrolled ? "bg-secondary" : "bg-white/10"
+                    }`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      layout: { type: "spring", stiffness: 170, damping: 26, mass: 0.7 },
+                      opacity: { duration: 0.15 },
+                    }}
+                  />
+                )}
+              </AnimatePresence>
               {link.label}
             </a>
           ))}

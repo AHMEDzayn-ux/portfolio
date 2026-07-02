@@ -182,7 +182,14 @@ export function FlowCarousel({
 
   return (
     <div className={className}>
-      <div className="relative">
+      {/* -my-24/py-24 gives the scaled/lifted cards room to breathe without
+          clipping, while overflow-clip stops that transform bleed from
+          leaking into the page's own scrollable area (it was triggering a
+          spurious vertical scrollbar). overflow-clip (rather than hidden)
+          guarantees this box can never itself become a scroll container.
+          Negative margin cancels the padding's layout impact, so surrounding
+          spacing is unchanged. */}
+      <div className="relative -my-24 overflow-clip py-24">
         {!pointerFlow && (
           <button
             type="button"
@@ -201,8 +208,10 @@ export function FlowCarousel({
           onScroll={!pointerFlow ? handleScroll : undefined}
           className={
             pointerFlow
-              ? "overflow-x-hidden overflow-y-visible"
-              : "snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              ? // px buffer keeps the flow-scaled edge cards from being cropped by
+                // this container's own horizontal clip boundary.
+                "overflow-x-hidden overflow-y-visible px-8"
+              : "snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           }
         >
           <motion.div
@@ -294,14 +303,14 @@ function FlowSlide({
     if (!pointerFlow) return 1;
     const [v, intensity] = latest as [number, number];
     const eased = proximityEase(v);
-    const flowingScale = 1.16 - eased * 0.24;
+    const flowingScale = 1.1 - eased * 0.18;
     return 1 + (flowingScale - 1) * intensity;
   });
   const y = useTransform([springX, flowIntensity], (latest) => {
     if (!pointerFlow) return 0;
     const [v, intensity] = latest as [number, number];
     const eased = proximityEase(v);
-    return eased * 10 * intensity;
+    return eased * 8 * intensity;
   });
 
   return (

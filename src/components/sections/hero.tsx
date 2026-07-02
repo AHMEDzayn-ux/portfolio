@@ -77,7 +77,6 @@ export function Hero({ profile }: { profile: Profile }) {
     ["0svh", "15svh"],
   );
   const textScrollY = useTransform(scrollYProgress, [0, 1], ["0svh", "8svh"]);
-  const textScrollFade = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
 
   function handleMove(e: ReactPointerEvent<HTMLElement>) {
     if (reduced) return;
@@ -206,9 +205,7 @@ export function Hero({ profile }: { profile: Profile }) {
 
         {/* Text */}
         <motion.div
-          style={
-            reduced ? undefined : { y: textScrollY, opacity: textScrollFade }
-          }
+          style={reduced ? undefined : { y: textScrollY }}
           className="absolute inset-x-0 bottom-0 z-50"
         >
           <motion.div
@@ -281,17 +278,6 @@ export function Hero({ profile }: { profile: Profile }) {
           </motion.span>
         </motion.a>
       </section>
-
-      {/* Hero-to-page transition — black needs real vertical distance to reach
-        the (possibly white) page background without a visible band */}
-      <div
-        aria-hidden
-        className="h-[16svh] w-full"
-        style={{
-          background:
-            "linear-gradient(to bottom, #000 0%, color-mix(in oklab, var(--background) 8%, #000) 22%, color-mix(in oklab, var(--background) 26%, #000) 44%, color-mix(in oklab, var(--background) 52%, #000) 64%, color-mix(in oklab, var(--background) 80%, #000) 84%, var(--background) 100%)",
-        }}
-      />
     </>
   );
 }

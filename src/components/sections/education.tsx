@@ -10,7 +10,7 @@ export function Education({ entries }: { entries: EducationEntry[] }) {
   );
 
   return (
-    <section id="education" className="mx-auto max-w-4xl px-6 py-14 sm:py-16">
+    <section id="education" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
       <Reveal>
         <p className="text-sm font-medium uppercase tracking-[0.3em] text-brand">
           Education

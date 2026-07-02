@@ -49,7 +49,7 @@ export function AmbientBackground() {
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
       {/* Dot grid — subtle paper-like texture so the background never reads as blank */}
-      <div className="absolute inset-0 bg-[radial-gradient(rgba(15,23,42,0.11)_1px,transparent_1px)] [background-size:24px_24px] dark:bg-[radial-gradient(rgba(255,255,255,0.035)_1px,transparent_1px)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(rgba(15,23,42,0.09)_1.5px,transparent_1.5px)] [background-size:24px_24px] dark:bg-[radial-gradient(rgba(255,255,255,0.035)_1px,transparent_1px)]" />
 
       <motion.div
         style={{
