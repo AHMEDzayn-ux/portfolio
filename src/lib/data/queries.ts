@@ -58,3 +58,30 @@ export async function getExperience() {
     .order("start_date", { ascending: false });
   return data ?? [];
 }
+
+export async function getEducation() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("education")
+    .select("*")
+    .order("start_date", { ascending: false });
+  return data ?? [];
+}
+
+export async function getPublications() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("publications")
+    .select("*")
+    .order("publication_date", { ascending: false });
+  return data ?? [];
+}
+
+export async function getAchievements() {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("achievements")
+    .select("*")
+    .order("date", { ascending: false });
+  return data ?? [];
+}

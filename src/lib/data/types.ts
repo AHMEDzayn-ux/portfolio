@@ -50,3 +50,34 @@ export type ExperienceEntry = {
   type: "work" | "education";
   location: string | null;
 };
+
+export type EducationEntry = {
+  id: string;
+  institution: string;
+  degree: string;
+  field_of_study: string | null;
+  grade: string | null;
+  description: string | null;
+  start_date: string;
+  end_date: string | null;
+  location: string | null;
+};
+
+export type Publication = {
+  id: string;
+  title: string;
+  authors: string;
+  venue: string | null;
+  publication_date: string;
+  url: string | null;
+  description: string | null;
+};
+
+export type Achievement = {
+  id: string;
+  title: string;
+  issuer: string | null;
+  description: string | null;
+  url: string | null;
+  date: string;
+};

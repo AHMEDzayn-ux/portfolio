@@ -17,6 +17,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          issuer: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          issuer?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          issuer?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
@@ -41,6 +77,51 @@ export type Database = {
           message?: string
           name?: string
           read?: boolean
+        }
+        Relationships: []
+      }
+      education: {
+        Row: {
+          created_at: string
+          degree: string
+          description: string | null
+          end_date: string | null
+          field_of_study: string | null
+          grade: string | null
+          id: string
+          institution: string
+          location: string | null
+          sort_order: number
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          degree: string
+          description?: string | null
+          end_date?: string | null
+          field_of_study?: string | null
+          grade?: string | null
+          id?: string
+          institution: string
+          location?: string | null
+          sort_order?: number
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          degree?: string
+          description?: string | null
+          end_date?: string | null
+          field_of_study?: string | null
+          grade?: string | null
+          id?: string
+          institution?: string
+          location?: string | null
+          sort_order?: number
+          start_date?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -191,6 +272,45 @@ export type Database = {
           tags?: string[]
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      publications: {
+        Row: {
+          authors: string
+          created_at: string
+          description: string | null
+          id: string
+          publication_date: string
+          sort_order: number
+          title: string
+          updated_at: string
+          url: string | null
+          venue: string | null
+        }
+        Insert: {
+          authors: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          publication_date: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          url?: string | null
+          venue?: string | null
+        }
+        Update: {
+          authors?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          publication_date?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          url?: string | null
+          venue?: string | null
         }
         Relationships: []
       }

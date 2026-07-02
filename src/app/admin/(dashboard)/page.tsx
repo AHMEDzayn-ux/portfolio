@@ -1,23 +1,35 @@
 import Link from "next/link";
-import { FolderGit2, Mail, Sparkles } from "lucide-react";
+import { Award, BookOpen, FolderGit2, GraduationCap, Mail, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 async function getStats() {
   const supabase = await createClient();
 
-  const [{ count: projectCount }, { count: skillCount }, { count: unreadCount }] =
-    await Promise.all([
-      supabase.from("projects").select("*", { count: "exact", head: true }),
-      supabase.from("skills").select("*", { count: "exact", head: true }),
-      supabase
-        .from("contact_messages")
-        .select("*", { count: "exact", head: true })
-        .eq("read", false),
-    ]);
+  const [
+    { count: projectCount },
+    { count: skillCount },
+    { count: educationCount },
+    { count: publicationCount },
+    { count: achievementCount },
+    { count: unreadCount },
+  ] = await Promise.all([
+    supabase.from("projects").select("*", { count: "exact", head: true }),
+    supabase.from("skills").select("*", { count: "exact", head: true }),
+    supabase.from("education").select("*", { count: "exact", head: true }),
+    supabase.from("publications").select("*", { count: "exact", head: true }),
+    supabase.from("achievements").select("*", { count: "exact", head: true }),
+    supabase
+      .from("contact_messages")
+      .select("*", { count: "exact", head: true })
+      .eq("read", false),
+  ]);
 
   return {
     projects: projectCount ?? 0,
     skills: skillCount ?? 0,
+    education: educationCount ?? 0,
+    publications: publicationCount ?? 0,
+    achievements: achievementCount ?? 0,
     unread: unreadCount ?? 0,
   };
 }
@@ -28,6 +40,14 @@ export default async function AdminDashboard() {
   const cards = [
     { href: "/admin/projects", label: "Projects", value: stats.projects, icon: FolderGit2 },
     { href: "/admin/skills", label: "Skills", value: stats.skills, icon: Sparkles },
+    { href: "/admin/education", label: "Education", value: stats.education, icon: GraduationCap },
+    {
+      href: "/admin/publications",
+      label: "Publications",
+      value: stats.publications,
+      icon: BookOpen,
+    },
+    { href: "/admin/achievements", label: "Achievements", value: stats.achievements, icon: Award },
     { href: "/admin/messages", label: "Unread messages", value: stats.unread, icon: Mail },
   ];
 

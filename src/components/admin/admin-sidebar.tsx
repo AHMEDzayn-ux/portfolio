@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Award,
+  BookOpen,
   Briefcase,
   FolderGit2,
+  GraduationCap,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -19,6 +22,9 @@ const LINKS = [
   { href: "/admin/projects", label: "Projects", icon: FolderGit2 },
   { href: "/admin/skills", label: "Skills", icon: Sparkles },
   { href: "/admin/experience", label: "Experience", icon: Briefcase },
+  { href: "/admin/education", label: "Education", icon: GraduationCap },
+  { href: "/admin/publications", label: "Publications", icon: BookOpen },
+  { href: "/admin/achievements", label: "Achievements", icon: Award },
   { href: "/admin/messages", label: "Messages", icon: Mail },
 ];
 

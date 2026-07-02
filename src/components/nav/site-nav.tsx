@@ -11,6 +11,9 @@ const LINKS = [
   { href: "#skills", label: "Skills" },
   { href: "#projects", label: "Projects" },
   { href: "#experience", label: "Experience" },
+  { href: "#education", label: "Education" },
+  { href: "#publications", label: "Publications" },
+  { href: "#achievements", label: "Achievements" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -79,7 +82,7 @@ export function SiteNav() {
           Ahmedh<span className="text-brand">.</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-5 lg:flex">
           {LINKS.map((link) => (
             <a
               key={link.href}
@@ -96,7 +99,7 @@ export function SiteNav() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           <ThemeToggle
             className={
               scrolled ? undefined : "border-white/25 text-white/80"
@@ -111,7 +114,7 @@ export function SiteNav() {
           </a>
         </div>
 
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-3 lg:hidden">
           <ThemeToggle
             className={
               scrolled ? undefined : "border-white/25 text-white/80"
@@ -131,7 +134,7 @@ export function SiteNav() {
       </div>
 
       {menuOpen && (
-        <nav className="mx-4 mb-4 flex flex-col gap-1 rounded-2xl border border-border/60 bg-background/95 p-4 backdrop-blur-md md:hidden">
+        <nav className="mx-4 mb-4 flex flex-col gap-1 rounded-2xl border border-border/60 bg-background/95 p-4 backdrop-blur-md lg:hidden">
           {LINKS.map((link) => (
             <a
               key={link.href}
