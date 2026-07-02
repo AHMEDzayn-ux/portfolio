@@ -71,6 +71,32 @@ const fragmentShader = /* glsl */ `
     return v;
   }
 
+  mat2 rot(float a) {
+    float s = sin(a);
+    float c = cos(a);
+    return mat2(c, -s, s, c);
+  }
+
+  vec2 curlFlow(vec2 p, float t, float seed) {
+    vec2 q = p * 0.9 + vec2(seed * 7.1, seed * 3.9) + vec2(t * 0.032, -t * 0.021);
+    float e = 0.22;
+    float dx = noise(q + vec2(e, 0.0)) - noise(q - vec2(e, 0.0));
+    float dy = noise(q + vec2(0.0, e)) - noise(q - vec2(0.0, e));
+    return normalize(vec2(dy, -dx) + vec2(0.001));
+  }
+
+  vec2 curvedPath(vec2 p, float t, float seed, float strength) {
+    vec2 flow = vec2(0.0);
+    vec2 q = p;
+    for (int j = 0; j < 3; j++) {
+      float fj = float(j);
+      vec2 v = curlFlow(q + flow * 0.7, t * (0.55 + fj * 0.18), seed + fj * 0.37);
+      flow += v * strength * (1.0 - fj * 0.22);
+      q += v * 0.28;
+    }
+    return flow;
+  }
+
   // r: luminance * alpha, g: "bright subject" mask. Zero outside the portrait rect.
   vec2 portraitField(vec2 uv) {
     vec2 puv = (uv - uRect.xy) / uRect.zw;
@@ -105,17 +131,30 @@ const fragmentShader = /* glsl */ `
 
     for (int i = 0; i < 6; i++) {
       float fi = float(i);
-      float dir = mix(1.0, -1.0, mod(fi, 2.0));
-      vec2 vel = vec2(dir * (0.026 + 0.009 * fi), -0.011 - 0.004 * fi);
+      float seed = hash(vec2(fi * 17.19, fi + 3.71));
+      float angle = seed * 6.2831853;
+      vec2 drift = vec2(cos(angle), sin(angle) * 0.55 - 0.35) * (0.02 + 0.006 * fi);
+      vec2 crossDrift = vec2(cos(angle + 1.85), sin(angle + 1.85)) * (0.008 + 0.002 * fi);
       float scale = 1.05 + 0.5 * fi;
-      // y-frequency >> x-frequency: features become long horizontal streaks
-      vec2 stretch = vec2(0.40, 1.75 + 0.28 * fi);
+      // Slightly tall features, then curved by the flow field below.
+      vec2 stretch = vec2(0.48 + 0.04 * seed, 1.48 + 0.22 * fi);
 
       vec2 p = suv;
+      vec2 flow = curvedPath(suv * (0.8 + 0.08 * fi), uTime, seed, 0.075 + 0.014 * fi);
       p += uPointer * (0.006 + 0.006 * fi);
       p += curl * rim * (0.055 + 0.02 * fi);
       p += warp * (0.17 + 0.05 * fi);
-      p = p * stretch * scale + vel * uTime + vec2(7.31 * fi, 3.17 * fi);
+      p += flow;
+      p += vec2(
+        sin((suv.y + fi) * (2.2 + 0.35 * fi) + uTime * (0.12 + 0.02 * fi)),
+        cos((suv.x + fi) * (2.8 + 0.25 * fi) - uTime * (0.1 + 0.018 * fi))
+      ) * (0.032 + 0.006 * fi);
+      p = rot((seed - 0.5) * 0.85 + 0.09 * sin(uTime * 0.12 + fi)) * p;
+      p = p * stretch * scale
+        + drift * uTime
+        + crossDrift * sin(uTime * (0.32 + seed))
+        + flow * (0.9 + 0.18 * fi)
+        + vec2(7.31 * fi, 3.17 * fi);
 
       float n = fbm(p);
       float lo = 0.46 - 0.02 * fi;       // slightly higher floor = sparser veil
@@ -123,7 +162,7 @@ const fragmentShader = /* glsl */ `
       layer *= layer;
 
       float reveal = smoothstep(0.9 + fi * 0.32, 2.8 + fi * 0.32, uTime);
-      float op = 0.065 - 0.006 * fi;
+      float op = 0.082 - 0.007 * fi;
 
       col += smokeCol * layer * op * reveal;
     }
