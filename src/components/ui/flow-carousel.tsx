@@ -201,14 +201,14 @@ export function FlowCarousel({
           onScroll={!pointerFlow ? handleScroll : undefined}
           className={
             pointerFlow
-              ? "overflow-hidden"
+              ? "overflow-x-hidden overflow-y-visible"
               : "snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           }
         >
           <motion.div
             ref={trackRef}
             style={pointerFlow ? { x: springX } : undefined}
-            className="flex gap-6"
+            className="flex gap-6 py-4"
           >
             {slides.map((slide, index) => (
               <FlowSlide
