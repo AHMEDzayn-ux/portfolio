@@ -8,9 +8,22 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, useGSAP);
+}
 
 /**
  * Snapped horizontal carousel. On hover-capable devices the track follows the
@@ -50,6 +63,21 @@ export function FlowCarousel({
   const springX = useSpring(x, { stiffness: 90, damping: 22, mass: 0.7 });
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Cards only enlarge while the row is actively flowing — idles back to
+  // flat the moment the pointer stops moving, so the resting layout never
+  // looks like the center card is wedged into its neighbors.
+  const flowIntensity = useMotionValue(0);
+  const smoothFlowIntensity = useSpring(flowIntensity, {
+    stiffness: 170,
+    damping: 26,
+  });
+  const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  function markFlowing() {
+    flowIntensity.set(1);
+    if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
+    idleTimeoutRef.current = setTimeout(() => flowIntensity.set(0), 220);
+  }
+
   // step = distance between slide starts; positions = how many snapped stops
   // exist (last stop shows the final full view, no dangling half slide).
   const getMetrics = useCallback(() => {
@@ -68,8 +96,13 @@ export function FlowCarousel({
   }, []);
 
   const [positions, setPositions] = useState(1);
+  const stepRef = useRef(1);
   useEffect(() => {
-    const measure = () => setPositions(getMetrics()?.positions ?? 1);
+    const measure = () => {
+      const m = getMetrics();
+      setPositions(m?.positions ?? 1);
+      stepRef.current = m?.step ?? 1;
+    };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
@@ -87,6 +120,7 @@ export function FlowCarousel({
     const index = Math.round(t * (m.positions - 1));
     setCurrentIndex(index);
     x.set(-Math.min(index * m.step, m.max));
+    markFlowing();
   }
 
   function goTo(index: number) {
@@ -115,6 +149,36 @@ export function FlowCarousel({
 
   const atStart = currentIndex <= 0;
   const atEnd = currentIndex >= positions - 1;
+
+  useGSAP(
+    () => {
+      if (reducedMotion || !trackRef.current) return;
+      const cards = gsap.utils.toArray<HTMLElement>(trackRef.current.children);
+      if (cards.length === 0) return;
+
+      // Cards rise in one by one from below as the carousel enters view, and
+      // replay every time it re-enters the viewport (either scroll direction).
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 70, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: viewportRef.current,
+            start: "top 88%",
+            end: "bottom 10%",
+            toggleActions: "play reverse play reverse",
+          },
+        }
+      );
+    },
+    { scope: viewportRef, dependencies: [reducedMotion, slides.length] }
+  );
 
   return (
     <div className={className}>
@@ -147,12 +211,17 @@ export function FlowCarousel({
             className="flex gap-6"
           >
             {slides.map((slide, index) => (
-              <div
+              <FlowSlide
                 key={index}
+                index={index}
+                springX={springX}
+                flowIntensity={smoothFlowIntensity}
+                pointerFlow={pointerFlow}
+                stepRef={stepRef}
                 className={`shrink-0 snap-start snap-always ${slideClassName}`}
               >
                 {slide}
-              </div>
+              </FlowSlide>
             ))}
           </motion.div>
         </div>
@@ -189,5 +258,55 @@ export function FlowCarousel({
         </div>
       )}
     </div>
+  );
+}
+
+/** A single carousel slide that zooms up slightly as it flows toward center. */
+function FlowSlide({
+  children,
+  index,
+  springX,
+  flowIntensity,
+  pointerFlow,
+  stepRef,
+  className,
+}: {
+  children: React.ReactNode;
+  index: number;
+  springX: MotionValue<number>;
+  flowIntensity: MotionValue<number>;
+  pointerFlow: boolean;
+  stepRef: React.RefObject<number>;
+  className?: string;
+}) {
+  const spread = 1.6; // how many slide-steps the influence reaches
+
+  function proximityEase(v: number) {
+    const step = stepRef.current || 1;
+    const t = -v / step;
+    const distance = Math.min(Math.abs(index - t), spread);
+    // Smooth cosine falloff (0 at center → 1 at edge of influence) so
+    // neighboring cards ease in/out gently, like beads riding a curve.
+    return (1 - Math.cos((distance / spread) * Math.PI)) / 2;
+  }
+
+  const scale = useTransform([springX, flowIntensity], (latest) => {
+    if (!pointerFlow) return 1;
+    const [v, intensity] = latest as [number, number];
+    const eased = proximityEase(v);
+    const flowingScale = 1.16 - eased * 0.24;
+    return 1 + (flowingScale - 1) * intensity;
+  });
+  const y = useTransform([springX, flowIntensity], (latest) => {
+    if (!pointerFlow) return 0;
+    const [v, intensity] = latest as [number, number];
+    const eased = proximityEase(v);
+    return eased * 10 * intensity;
+  });
+
+  return (
+    <motion.div style={{ scale, y }} className={className}>
+      {children}
+    </motion.div>
   );
 }

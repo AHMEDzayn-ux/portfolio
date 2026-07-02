@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import { getLenisInstance } from "@/lib/lenis-instance";
 
 const LINKS = [
   { href: "#about", label: "About" },
@@ -35,6 +36,27 @@ export function SiteNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    if (!href.startsWith("#") || href === "#") return;
+    const target = document.querySelector(href);
+    if (!target) return;
+    e.preventDefault();
+    setMenuOpen(false);
+
+    const lenis = getLenisInstance();
+    if (lenis) {
+      lenis.scrollTo(target as HTMLElement, {
+        offset: -84,
+        duration: 1.4,
+        easing: (t: number) => 1 - Math.pow(1 - t, 4),
+      });
+    } else {
+      const top =
+        target.getBoundingClientRect().top + window.scrollY - 84;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  }
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-transform duration-300 ${
@@ -62,6 +84,7 @@ export function SiteNav() {
             <a
               key={link.href}
               href={link.href}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`text-sm transition-colors ${
                 scrolled
                   ? "text-foreground/70 hover:text-foreground"
@@ -81,6 +104,7 @@ export function SiteNav() {
           />
           <a
             href="#contact"
+            onClick={(e) => handleNavClick(e, "#contact")}
             className="rounded-full bg-brand px-4 py-2 text-sm font-medium text-brand-foreground transition-transform hover:scale-[1.03]"
           >
             Let&apos;s talk
@@ -112,7 +136,7 @@ export function SiteNav() {
             <a
               key={link.href}
               href={link.href}
-              onClick={() => setMenuOpen(false)}
+              onClick={(e) => handleNavClick(e, link.href)}
               className="rounded-lg px-3 py-2 text-sm text-foreground/80 hover:bg-secondary"
             >
               {link.label}

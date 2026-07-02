@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { setLenisInstance } from "@/lib/lenis-instance";
 
 export function SmoothScroll() {
   const reducedMotion = useReducedMotion();
@@ -14,6 +15,7 @@ export function SmoothScroll() {
     const lenis = new Lenis({
       autoRaf: false,
     });
+    setLenisInstance(lenis);
 
     function raf(time: number) {
       // gsap.ticker reports time in seconds; Lenis expects milliseconds
@@ -25,6 +27,7 @@ export function SmoothScroll() {
 
     return () => {
       gsap.ticker.remove(raf);
+      setLenisInstance(null);
       lenis.destroy();
     };
   }, [reducedMotion]);

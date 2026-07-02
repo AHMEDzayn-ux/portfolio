@@ -136,7 +136,7 @@ export function Hero({ profile }: { profile: Profile }) {
               className="absolute inset-0"
             >
               {profile.avatar_url && (
-                <div className="absolute bottom-0 left-1/2 h-[78svh] -translate-x-1/2">
+                <div className="absolute bottom-[3svh] right-0 h-[84svh] sm:right-[2%] lg:right-[4%]">
                   {/* Breathing zoom — ~2% over 11s, its own wrapper so it never
                     fights the intro scale settle above */}
                   <motion.div
@@ -219,19 +219,23 @@ export function Hero({ profile }: { profile: Profile }) {
           >
             <motion.p
               variants={reduced ? reducedTextItem : textItem}
-              className="text-xs font-medium uppercase tracking-[0.35em] text-brand sm:text-sm"
+              className="text-sm font-medium uppercase tracking-[0.35em] text-brand sm:text-base"
             >
               {profile.title}
             </motion.p>
             <motion.h1
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-4 max-w-3xl font-heading text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
+              className="mt-5 max-w-3xl font-heading text-7xl font-semibold leading-[1.02] tracking-tight sm:text-8xl lg:text-9xl"
             >
-              {profile.full_name}
+              {profile.full_name.split(" ").map((word, i) => (
+                <span key={i} className="block">
+                  {word}
+                </span>
+              ))}
             </motion.h1>
             <motion.p
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-5 max-w-xl text-balance text-base text-white/70 sm:text-lg"
+              className="mt-6 max-w-xl text-balance text-lg text-white/70 sm:text-xl"
             >
               {profile.short_tagline}
             </motion.p>

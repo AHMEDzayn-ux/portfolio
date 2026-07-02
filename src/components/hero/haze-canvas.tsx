@@ -97,6 +97,37 @@ const fragmentShader = /* glsl */ `
     return flow;
   }
 
+  float plumeMask(vec2 uv, vec2 flow, float t, float seed, float fi) {
+    vec2 q = uv;
+    q += flow * vec2(0.34, 0.24);
+    q += vec2(
+      sin(t * (0.05 + 0.015 * fi) + seed * 6.0),
+      cos(t * (0.04 + 0.012 * fi) + seed * 3.0)
+    ) * 0.018;
+
+    float side = mix(0.24, 0.76, step(0.5, fract(seed * 3.17 + fi * 0.21)));
+    float center = side
+      + sin(q.y * (2.1 + seed * 1.2) + t * (0.16 + seed * 0.06) + seed * 8.0) * (0.16 + 0.04 * seed)
+      + sin(q.y * (5.2 + fi * 0.3) - t * (0.11 + seed * 0.05) + seed * 5.0) * 0.055;
+    float width = 0.24
+      + 0.06 * fbm(q * vec2(2.0, 1.4) + vec2(seed * 11.0))
+      + 0.024 * fi;
+    float ribbon = 1.0 - smoothstep(width * 0.34, width, abs(q.x - center));
+    float torn = smoothstep(
+      0.28,
+      0.82,
+      fbm(q * vec2(3.0, 4.5) + flow * 1.2 + vec2(t * 0.05, -t * 0.035))
+    );
+    float veil = smoothstep(
+      0.18,
+      0.9,
+      fbm(q * vec2(0.9, 1.35) + vec2(seed * 2.0, -t * 0.035))
+    );
+
+    float sideLift = smoothstep(0.08, 0.42, abs(uv.x - 0.5));
+    return clamp((ribbon * (0.55 + 0.45 * torn) + veil * 0.28) * (0.72 + sideLift * 0.45), 0.0, 1.0);
+  }
+
   // r: luminance * alpha, g: "bright subject" mask. Zero outside the portrait rect.
   vec2 portraitField(vec2 uv) {
     vec2 puv = (uv - uRect.xy) / uRect.zw;
@@ -157,15 +188,25 @@ const fragmentShader = /* glsl */ `
         + vec2(7.31 * fi, 3.17 * fi);
 
       float n = fbm(p);
-      float lo = 0.46 - 0.02 * fi;       // slightly higher floor = sparser veil
-      float layer = smoothstep(lo, lo + 0.42, n);
-      layer *= layer;
+      float lo = 0.42 - 0.018 * fi;
+      float fiber = smoothstep(lo, lo + 0.38, n);
+      fiber = pow(fiber, 1.25);
+      float plume = plumeMask(uv, flow, uTime, seed, fi);
+      float breakup = smoothstep(0.22, 0.92, fbm(p * 0.58 + flow * 1.7));
+      float layer = plume * (0.46 + 0.38 * fiber) + fiber * breakup * 0.24;
 
-      float reveal = smoothstep(0.9 + fi * 0.32, 2.8 + fi * 0.32, uTime);
-      float op = 0.082 - 0.007 * fi;
+      float reveal = smoothstep(0.15 + fi * 0.12, 1.25 + fi * 0.12, uTime);
+      float op = 0.086 - 0.007 * fi;
 
       col += smokeCol * layer * op * reveal;
     }
+
+    float ambient = smoothstep(
+      0.24,
+      0.88,
+      fbm(suv * 0.62 + warp * 0.9 + vec2(-uTime * 0.012, uTime * 0.009))
+    );
+    col += smokeCol * ambient * 0.02;
 
     // No portrait masking needed — the haze layer sits behind the portrait
     // in the DOM stacking order, so it can never draw over the photo.
