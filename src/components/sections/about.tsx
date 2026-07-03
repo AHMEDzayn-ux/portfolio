@@ -11,7 +11,7 @@ export function About({ profile }: { profile: Profile }) {
         <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
           A little about me
         </h2>
-        <p className="mt-8 max-w-3xl text-lg leading-relaxed text-foreground/75 sm:text-xl">
+        <p className="mt-8 max-w-3xl text-base leading-relaxed text-foreground/75 sm:text-lg">
           {profile.bio}
         </p>
         {profile.location && (
