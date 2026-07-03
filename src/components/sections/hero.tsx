@@ -96,7 +96,7 @@ export function Hero({ profile }: { profile: Profile }) {
         id="hero"
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
-        className="relative h-[100svh] w-full overflow-hidden bg-black text-white"
+        className="relative isolate h-[100svh] w-full overflow-hidden bg-black text-white"
       >
         {/* Background glows — deepest layer */}
         <motion.div
