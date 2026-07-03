@@ -23,6 +23,9 @@ export function MediaCarousel({
       className={className}
       ariaLabel="gallery"
       slideClassName="w-full sm:w-[calc((100%-1.5rem)/2)]"
+      flowStiffness={14}
+      flowDamping={18}
+      flowMass={1.6}
     >
       {media.map((item) => (
         <figure

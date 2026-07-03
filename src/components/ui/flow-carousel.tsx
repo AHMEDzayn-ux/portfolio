@@ -37,11 +37,19 @@ export function FlowCarousel({
   className,
   slideClassName,
   ariaLabel = "carousel",
+  flowStiffness = 90,
+  flowDamping = 22,
+  flowMass = 0.7,
 }: {
   children: React.ReactNode;
   className?: string;
   slideClassName: string;
   ariaLabel?: string;
+  /** Spring settings for how the row eases toward the cursor's target.
+   * Lower stiffness / higher damping & mass = slower, more gradual motion. */
+  flowStiffness?: number;
+  flowDamping?: number;
+  flowMass?: number;
 }) {
   const slides = Children.toArray(children);
   const reducedMotion = useReducedMotion();
@@ -60,7 +68,11 @@ export function FlowCarousel({
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
-  const springX = useSpring(x, { stiffness: 90, damping: 22, mass: 0.7 });
+  const springX = useSpring(x, {
+    stiffness: flowStiffness,
+    damping: flowDamping,
+    mass: flowMass,
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Cards only enlarge while the row is actively flowing — idles back to
@@ -110,8 +122,22 @@ export function FlowCarousel({
 
   function handleMove(e: ReactPointerEvent<HTMLDivElement>) {
     const viewport = viewportRef.current;
+    const track = trackRef.current;
     const m = getMetrics();
     if (!viewport || !m || m.max <= 0) return;
+
+    // Freeze the flow once the pointer is directly over a card so holding
+    // still on a photo (or aiming a click) doesn't keep shifting it out from
+    // under the cursor. Movement in the gaps between cards still flows.
+    if (track) {
+      const target = e.target as Node;
+      const overCard = Array.prototype.some.call(
+        track.children,
+        (child: Node) => child === target || (child as HTMLElement).contains(target)
+      );
+      if (overCard) return;
+    }
+
     const r = viewport.getBoundingClientRect();
     const ratio = (e.clientX - r.left) / r.width;
     // Dead margins at the edges, then quantize to whole slide steps so the
