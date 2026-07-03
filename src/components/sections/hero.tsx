@@ -17,7 +17,7 @@ import type { Profile } from "@/lib/data/types";
 // Text arrives last: fade-up + blur-to-focus, staggered line by line.
 const textContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.16, delayChildren: 1.7 } },
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.9 } },
 };
 
 const textItem: Variants = {
@@ -26,7 +26,7 @@ const textItem: Variants = {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 1.1, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -110,7 +110,7 @@ export function Hero({ profile }: { profile: Profile }) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 2.2, delay: 0.45, ease: "easeOut" }}
+              transition={{ duration: 1.4, delay: 0.2, ease: "easeOut" }}
               className="absolute inset-0"
             >
               <div className="absolute left-1/2 top-1/2 h-[95vh] w-[120vw] max-h-[980px] max-w-[1800px] -translate-x-[62%] -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(96,152,222,0.44),rgba(96,152,222,0.22)_44%,transparent_78%)] blur-3xl" />
@@ -131,7 +131,11 @@ export function Hero({ profile }: { profile: Profile }) {
             <motion.div
               initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.055 }}
               animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-              transition={{ duration: 2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: 1.3,
+                delay: 0.05,
+                ease: [0.16, 1, 0.3, 1],
+              }}
               className="absolute inset-0"
             >
               {profile.avatar_url && (
@@ -177,7 +181,7 @@ export function Hero({ profile }: { profile: Profile }) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.6, delay: 0.7, ease: "easeOut" }}
+            transition={{ duration: 1.1, delay: 0.35, ease: "easeOut" }}
             className="absolute inset-0"
           >
             <HazeCanvas
@@ -265,7 +269,7 @@ export function Hero({ profile }: { profile: Profile }) {
           aria-label="Scroll to about section"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 2.9, duration: 1.2, ease: "easeOut" }}
+          transition={{ delay: 1.6, duration: 0.9, ease: "easeOut" }}
           className="absolute bottom-6 left-1/2 z-50 -translate-x-1/2"
         >
           <motion.span
