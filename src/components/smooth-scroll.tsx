@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
@@ -8,9 +9,11 @@ import { setLenisInstance } from "@/lib/lenis-instance";
 
 export function SmoothScroll() {
   const reducedMotion = useReducedMotion();
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || isAdmin) return;
 
     const lenis = new Lenis({
       autoRaf: false,
@@ -30,7 +33,7 @@ export function SmoothScroll() {
       setLenisInstance(null);
       lenis.destroy();
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, isAdmin]);
 
   return null;
 }
