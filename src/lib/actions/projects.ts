@@ -39,7 +39,8 @@ export async function listProjects() {
   const { data, error } = await supabase
     .from("projects")
     .select("*")
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   if (error) throw new Error(error.message);
   return data;
 }

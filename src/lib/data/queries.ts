@@ -15,7 +15,8 @@ export async function getPublishedProjects() {
     .from("projects")
     .select("*")
     .eq("status", "published")
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   return data ?? [];
 }
 
@@ -26,7 +27,8 @@ export async function getPublishedProjectsStatic() {
     .from("projects")
     .select("*")
     .eq("status", "published")
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
   return data ?? [];
 }
 
