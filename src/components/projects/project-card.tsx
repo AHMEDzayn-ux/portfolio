@@ -1,19 +1,34 @@
 import Link from "next/link";
 import { ArrowUpRight, FolderGit2 } from "lucide-react";
+import { getProjectHero } from "@/lib/data/project-media";
 import type { Project } from "@/lib/data/types";
 
 export function ProjectCard({ project }: { project: Project }) {
+  const hero = getProjectHero(project);
+
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-colors hover:border-brand/50">
       <Link href={`/projects/${project.slug}`} className="block">
         <div className="relative aspect-[16/10] overflow-hidden bg-secondary/50">
-          {project.image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={project.image_url}
-              alt={project.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+          {hero ? (
+            hero.type === "image" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={hero.url}
+                alt={project.title}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <video
+                src={hero.url}
+                autoPlay
+                muted
+                loop
+                playsInline
+                aria-hidden
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            )
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <span className="font-heading text-2xl font-semibold text-foreground/15">
