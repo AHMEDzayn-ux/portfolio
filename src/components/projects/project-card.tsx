@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { ArrowUpRight, FolderGit2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight, FolderGit2 } from "lucide-react";
 import { getProjectHero } from "@/lib/data/project-media";
 import type { Project } from "@/lib/data/types";
 
+const DESCRIPTION_CLAMP_THRESHOLD = 100;
+
 export function ProjectCard({ project }: { project: Project }) {
   const hero = getProjectHero(project);
+  const isTruncated = project.description.length > DESCRIPTION_CLAMP_THRESHOLD;
 
   return (
     <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card transition-colors hover:border-brand/50">
@@ -45,7 +48,7 @@ export function ProjectCard({ project }: { project: Project }) {
             {project.title}
           </h3>
         </Link>
-        <p className="line-clamp-2 flex-1 text-sm text-foreground/65">
+        <p className="line-clamp-2 min-h-0 flex-1 text-sm text-foreground/65">
           {project.description}
         </p>
 
@@ -60,6 +63,16 @@ export function ProjectCard({ project }: { project: Project }) {
               </li>
             ))}
           </ul>
+        )}
+
+        {isTruncated && (
+          <Link
+            href={`/projects/${project.slug}`}
+            className="flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-brand"
+          >
+            See more
+            <ArrowRight className="h-3 w-3" />
+          </Link>
         )}
 
         <div className="mt-2 flex items-center gap-4 text-sm text-foreground/60">

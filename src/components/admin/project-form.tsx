@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,6 +68,9 @@ export function ProjectForm({ project }: { project?: ProjectRow }) {
         },
   });
 
+  const descriptionValue = useWatch({ control, name: "description" }) ?? "";
+  const tagsValue = useWatch({ control, name: "tags" }) ?? [];
+
   async function onSubmit(data: ProjectInput) {
     setPending(true);
     const result = project
@@ -99,8 +103,23 @@ export function ProjectForm({ project }: { project?: ProjectRow }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Short description</Label>
-        <Textarea id="description" rows={2} {...register("description")} />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="description">Short description</Label>
+          <span
+            className={`text-xs ${
+              descriptionValue.length > 200 ? "text-destructive" : "text-foreground/50"
+            }`}
+          >
+            {descriptionValue.length}/200
+          </span>
+        </div>
+        <Textarea id="description" rows={2} maxLength={200} {...register("description")} />
+        <p className="text-xs text-foreground/50">
+          Shown on the project card — keep it to one or two short sentences.
+        </p>
+        {errors.description && (
+          <p className="text-xs text-destructive">{errors.description.message}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -109,7 +128,16 @@ export function ProjectForm({ project }: { project?: ProjectRow }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="tags">Tags (comma separated)</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="tags">Tags (comma separated)</Label>
+          <span
+            className={`text-xs ${
+              tagsValue.length > 6 ? "text-destructive" : "text-foreground/50"
+            }`}
+          >
+            {tagsValue.length}/6
+          </span>
+        </div>
         <Input
           id="tags"
           defaultValue={project?.tags.join(", ") ?? ""}
@@ -118,12 +146,21 @@ export function ProjectForm({ project }: { project?: ProjectRow }) {
               "tags",
               e.target.value
                 .split(",")
-                .map((t) => t.trim())
-                .filter(Boolean)
+                .map((t) => t.trim().slice(0, 24))
+                .filter(Boolean),
+              { shouldValidate: true }
             )
           }
           placeholder="TypeScript, Next.js"
         />
+        <p className="text-xs text-foreground/50">
+          Up to 6 tags, 24 characters each — extra tags are hidden on the project card.
+        </p>
+        {errors.tags && (
+          <p className="text-xs text-destructive">
+            {Array.isArray(errors.tags) ? errors.tags[0]?.message : errors.tags.message}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-5 sm:grid-cols-3">
