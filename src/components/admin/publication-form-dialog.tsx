@@ -35,6 +35,7 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
     defaultValues: entry
       ? {
           title: entry.title,
+          slug: entry.slug,
           authors: entry.authors,
           venue: entry.venue ?? "",
           publication_date: entry.publication_date,
@@ -44,6 +45,7 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
         }
       : {
           title: "",
+          slug: "",
           authors: "",
           venue: "",
           publication_date: "",
@@ -91,6 +93,12 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
             <Label htmlFor="title">Title</Label>
             <Input id="title" {...register("title")} />
             {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug</Label>
+            <Input id="slug" {...register("slug")} placeholder="my-research-paper" />
+            {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
           </div>
 
           <div className="space-y-2">

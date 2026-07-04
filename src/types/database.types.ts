@@ -282,6 +282,7 @@ export type Database = {
           description: string | null
           id: string
           publication_date: string
+          slug: string
           sort_order: number
           title: string
           updated_at: string
@@ -294,6 +295,7 @@ export type Database = {
           description?: string | null
           id?: string
           publication_date: string
+          slug: string
           sort_order?: number
           title: string
           updated_at?: string
@@ -306,6 +308,7 @@ export type Database = {
           description?: string | null
           id?: string
           publication_date?: string
+          slug?: string
           sort_order?: number
           title?: string
           updated_at?: string

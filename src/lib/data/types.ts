@@ -65,6 +65,7 @@ export type EducationEntry = {
 
 export type Publication = {
   id: string;
+  slug: string;
   title: string;
   authors: string;
   venue: string | null;

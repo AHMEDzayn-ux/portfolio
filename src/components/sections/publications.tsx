@@ -1,10 +1,6 @@
-import { ExternalLink } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
+import { PublicationsCarousel } from "@/components/publications/publications-carousel";
 import type { Publication } from "@/lib/data/types";
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short" });
-}
 
 export function Publications({ publications }: { publications: Publication[] }) {
   if (publications.length === 0) return null;
@@ -24,38 +20,7 @@ export function Publications({ publications }: { publications: Publication[] }) 
         </h2>
       </Reveal>
 
-      <Reveal className="mt-12 space-y-4">
-        {sorted.map((pub) => (
-          <article
-            key={pub.id}
-            className="rounded-2xl border border-border/70 bg-secondary/20 p-6 transition-colors hover:border-brand/50"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <h3 className="font-heading text-lg font-semibold tracking-tight">{pub.title}</h3>
-              {pub.url && (
-                <a
-                  href={pub.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Read ${pub.title}`}
-                  className="shrink-0 text-foreground/50 transition-colors hover:text-brand"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-              )}
-            </div>
-            <p className="mt-2 text-sm text-foreground/60">
-              {pub.authors}
-              {pub.venue ? ` · ${pub.venue}` : ""} · {formatDate(pub.publication_date)}
-            </p>
-            {pub.description && (
-              <p className="mt-3 text-sm leading-relaxed text-foreground/70">
-                {pub.description}
-              </p>
-            )}
-          </article>
-        ))}
-      </Reveal>
+      <PublicationsCarousel publications={sorted} className="mt-12" />
     </section>
   );
 }

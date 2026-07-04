@@ -22,6 +22,11 @@ function nullifyEmpty(data: Record<string, unknown>): PublicationInsert {
   ) as PublicationInsert;
 }
 
+function revalidatePublic(slug?: string) {
+  revalidatePath("/");
+  if (slug) revalidatePath(`/publications/${slug}`);
+}
+
 export async function listPublications() {
   const supabase = await requireAdmin();
   const { data, error } = await supabase
@@ -40,10 +45,15 @@ export async function createPublication(input: unknown) {
 
   const supabase = await requireAdmin();
   const { error } = await supabase.from("publications").insert(nullifyEmpty(parsed.data));
-  if (error) return { ok: false as const, error: error.message };
+  if (error) {
+    return {
+      ok: false as const,
+      error: error.code === "23505" ? "That slug is already in use." : error.message,
+    };
+  }
 
   revalidatePath("/admin/publications");
-  revalidatePath("/");
+  revalidatePublic(parsed.data.slug);
   return { ok: true as const };
 }
 
@@ -58,10 +68,15 @@ export async function updatePublication(id: string, input: unknown) {
     .from("publications")
     .update(nullifyEmpty(parsed.data))
     .eq("id", id);
-  if (error) return { ok: false as const, error: error.message };
+  if (error) {
+    return {
+      ok: false as const,
+      error: error.code === "23505" ? "That slug is already in use." : error.message,
+    };
+  }
 
   revalidatePath("/admin/publications");
-  revalidatePath("/");
+  revalidatePublic(parsed.data.slug);
   return { ok: true as const };
 }
 

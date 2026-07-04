@@ -79,6 +79,26 @@ export async function getPublications() {
   return data ?? [];
 }
 
+/** Build-time safe variant (no cookies/request context) for generateStaticParams and sitemap.ts. */
+export async function getPublicationsStatic() {
+  const supabase = createStaticClient();
+  const { data } = await supabase
+    .from("publications")
+    .select("*")
+    .order("publication_date", { ascending: false });
+  return data ?? [];
+}
+
+export async function getPublicationBySlug(slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("publications")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+  return data;
+}
+
 export async function getAchievements() {
   const supabase = await createClient();
   const { data } = await supabase
