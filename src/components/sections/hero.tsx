@@ -21,12 +21,18 @@ const textContainer: Variants = {
 };
 
 const textItem: Variants = {
-  hidden: { opacity: 0, y: 26, filter: "blur(14px)" },
+  hidden: { opacity: 0, y: 26, filter: "blur(8px)" },
   show: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1],
+      // Blur repaints every frame; resolve it a touch earlier than the
+      // transform/opacity so the expensive part finishes fast.
+      filter: { duration: 0.55, ease: "easeOut" },
+    },
   },
 };
 

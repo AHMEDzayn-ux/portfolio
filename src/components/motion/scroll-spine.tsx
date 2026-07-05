@@ -88,7 +88,9 @@ export function ScrollSpine() {
                 (acc, m, i) => (progressPct >= m.top ? i : acc),
                 -1
               );
-              setActiveIndex(idx);
+              // Only reconcile React when the active dot actually changes —
+              // otherwise this fires a re-render on every scroll frame.
+              setActiveIndex((prev) => (prev === idx ? prev : idx));
             },
           },
         }
