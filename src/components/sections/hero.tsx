@@ -213,6 +213,10 @@ export function Hero({ profile }: { profile: Profile }) {
                       ref={portraitImgRef}
                       src={profile.avatar_url}
                       alt={profile.full_name}
+                      // Match the crossOrigin the haze canvas uses to sample
+                      // this same image, so the browser reuses one cache entry
+                      // instead of fetching the portrait twice.
+                      crossOrigin="anonymous"
                       fetchPriority="high"
                       decoding="async"
                       className="h-full w-auto max-w-[94vw] object-contain object-bottom"
