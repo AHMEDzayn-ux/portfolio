@@ -34,6 +34,9 @@ const HazeCanvas = dynamic(
 // public/portrait.webp.
 const PORTRAIT_SRC = "/portrait.webp";
 
+// Fixed in code rather than fetched from Supabase.
+const FULL_NAME = "Ruzayn Ahmedh";
+
 // Text arrives last: fade-up + blur-to-focus, staggered line by line.
 const textContainer: Variants = {
   hidden: {},
@@ -218,7 +221,7 @@ export function Hero({ profile }: { profile: Profile }) {
                     <img
                       ref={portraitImgRef}
                       src={PORTRAIT_SRC}
-                      alt={profile.full_name}
+                      alt={FULL_NAME}
                       // Match the crossOrigin the haze canvas uses to sample
                       // this same image, so the browser reuses one cache entry
                       // instead of fetching the portrait twice.
@@ -300,7 +303,7 @@ export function Hero({ profile }: { profile: Profile }) {
               variants={reduced ? reducedTextItem : textItem}
               className="mt-5 max-w-3xl font-heading text-7xl font-semibold leading-[1.02] tracking-tight sm:text-8xl lg:text-9xl"
             >
-              {profile.full_name.split(" ").map((word, i) => (
+              {FULL_NAME.split(" ").map((word, i) => (
                 <span key={i} className="block">
                   {word}
                 </span>
