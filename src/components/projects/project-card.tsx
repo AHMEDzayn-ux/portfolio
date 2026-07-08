@@ -17,7 +17,7 @@ export function ProjectCard({ project }: { project: Project }) {
             hero.type === "image" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={hero.url}
+                src={hero.card_url ?? hero.url}
                 alt={project.title}
                 width={800}
                 height={500}

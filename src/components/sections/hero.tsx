@@ -90,6 +90,10 @@ export function Hero({ profile }: { profile: Profile }) {
 
   useEffect(() => {
     if (reduced) return;
+    // The haze is a mouse-pointer parallax effect — meaningless on touch and
+    // by far the heaviest asset (three.js). Skip it entirely on devices
+    // without a fine pointer so they never download or run it.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     const w = window as typeof window & {
       requestIdleCallback?: (cb: () => void) => number;
       cancelIdleCallback?: (id: number) => void;

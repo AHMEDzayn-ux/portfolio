@@ -16,6 +16,8 @@ export type Profile = {
 export type ProjectMedia = {
   url: string;
   type: "image" | "video";
+  /** Small (~800px) variant for card thumbnails; falls back to `url`. */
+  card_url?: string;
 };
 
 export type Project = {
