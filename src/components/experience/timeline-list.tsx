@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { formatYear } from "@/lib/format-date";
 import type { ExperienceEntry } from "@/lib/data/types";
 
 if (typeof window !== "undefined") {
@@ -12,8 +13,8 @@ if (typeof window !== "undefined") {
 }
 
 function formatRange(entry: ExperienceEntry) {
-  const start = new Date(entry.start_date).getFullYear();
-  const end = entry.end_date ? new Date(entry.end_date).getFullYear() : "Present";
+  const start = formatYear(entry.start_date);
+  const end = entry.end_date ? formatYear(entry.end_date) : "Present";
   return `${start} — ${end}`;
 }
 

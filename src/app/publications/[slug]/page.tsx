@@ -2,15 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
+import { formatMonthYear } from "@/lib/format-date";
 import { getPublicationBySlug, getPublicationsStatic } from "@/lib/data/queries";
 
 export async function generateStaticParams() {
   const publications = await getPublicationsStatic();
   return publications.map((publication) => ({ slug: publication.slug }));
-}
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short" });
 }
 
 export default async function PublicationPage({
@@ -42,7 +39,7 @@ export default async function PublicationPage({
           <p className="mt-4 max-w-2xl text-balance text-base text-white/70 sm:text-lg">
             {publication.authors}
             {publication.venue ? ` · ${publication.venue}` : ""} ·{" "}
-            {formatDate(publication.publication_date)}
+            {formatMonthYear(publication.publication_date)}
           </p>
 
           {publication.url && (

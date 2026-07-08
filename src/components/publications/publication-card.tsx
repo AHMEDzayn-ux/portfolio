@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
+import { formatMonthYear } from "@/lib/format-date";
 import type { Publication } from "@/lib/data/types";
 
 const DESCRIPTION_CLAMP_THRESHOLD = 100;
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short" });
-}
 
 export function PublicationCard({ publication }: { publication: Publication }) {
   const isTruncated = (publication.description?.length ?? 0) > DESCRIPTION_CLAMP_THRESHOLD;
@@ -22,7 +19,7 @@ export function PublicationCard({ publication }: { publication: Publication }) {
         <p className="text-sm text-foreground/60">
           {publication.authors}
           {publication.venue ? ` · ${publication.venue}` : ""} ·{" "}
-          {formatDate(publication.publication_date)}
+          {formatMonthYear(publication.publication_date)}
         </p>
 
         {publication.description && (
@@ -34,6 +31,7 @@ export function PublicationCard({ publication }: { publication: Publication }) {
         {isTruncated && (
           <Link
             href={`/publications/${publication.slug}`}
+            aria-label={`See more about ${publication.title}`}
             className="flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-brand"
           >
             See more

@@ -72,6 +72,7 @@ export function ProjectCard({ project }: { project: Project }) {
         {isTruncated && (
           <Link
             href={`/projects/${project.slug}`}
+            aria-label={`See more about ${project.title}`}
             className="flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-brand"
           >
             See more

@@ -1,10 +1,7 @@
 import { Award, ExternalLink } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
+import { formatMonthYear } from "@/lib/format-date";
 import type { Achievement } from "@/lib/data/types";
-
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short" });
-}
 
 export function Achievements({ achievements }: { achievements: Achievement[] }) {
   if (achievements.length === 0) return null;
@@ -49,7 +46,7 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
             </h3>
             <p className="mt-1 text-sm text-foreground/60">
               {item.issuer ? `${item.issuer} · ` : ""}
-              {formatDate(item.date)}
+              {formatMonthYear(item.date)}
             </p>
             {item.description && (
               <p className="mt-3 text-sm leading-relaxed text-foreground/70">
