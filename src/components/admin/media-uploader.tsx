@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Film, ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/compress-image";
 import type { ProjectMedia } from "@/lib/data/types";
 
 const MAX_FILE_MB = 50;
@@ -33,16 +34,21 @@ export function MediaUploader({
     const supabase = createClient();
     const added: ProjectMedia[] = [];
 
-    for (const file of Array.from(files)) {
-      const type = file.type.startsWith("video/")
+    for (const original of Array.from(files)) {
+      const type = original.type.startsWith("video/")
         ? ("video" as const)
-        : file.type.startsWith("image/")
+        : original.type.startsWith("image/")
           ? ("image" as const)
           : null;
       if (!type) {
-        toast.error(`${file.name}: only images and videos are supported.`);
+        toast.error(`${original.name}: only images and videos are supported.`);
         continue;
       }
+
+      // Downscale + WebP-encode images in the browser so we don't ship
+      // multi-MB screenshots to storage (and to every visitor).
+      const file = type === "image" ? await compressImage(original) : original;
+
       if (file.size > MAX_FILE_MB * 1024 * 1024) {
         toast.error(`${file.name} is larger than ${MAX_FILE_MB}MB.`);
         continue;
@@ -51,7 +57,10 @@ export function MediaUploader({
       const path = `projects/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       const { error } = await supabase.storage
         .from("public-assets")
-        .upload(path, file, { upsert: true });
+        // Filenames are timestamp-prefixed and never overwritten, so the bytes
+        // at a URL are immutable — cache them for a year instead of the 1h
+        // Supabase default.
+        .upload(path, file, { upsert: true, cacheControl: "31536000" });
       if (error) {
         toast.error(`${file.name}: ${error.message}`);
         continue;
@@ -98,6 +107,8 @@ export function MediaUploader({
                 <img
                   src={item.url}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               ) : (

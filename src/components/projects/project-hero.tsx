@@ -50,6 +50,8 @@ export function ProjectHero({
               src={hero.url}
               alt=""
               aria-hidden
+              fetchPriority="high"
+              decoding="async"
               initial={{ opacity: 0, scale: 1.06 }}
               animate={{ opacity: 0.5, scale: 1 }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}

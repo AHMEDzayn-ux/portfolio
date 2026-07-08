@@ -15,6 +15,9 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  // Only referenced by the unused `font-mono` token — keep it self-hosted for
+  // fallback but don't preload a font nothing on the page actually renders.
+  preload: false,
 });
 
 const spaceGrotesk = Space_Grotesk({

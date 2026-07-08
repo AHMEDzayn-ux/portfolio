@@ -389,6 +389,8 @@ type HazeCanvasProps = {
   portraitRef: React.RefObject<HTMLImageElement | null>;
   pointerX: MotionValue<number>;
   pointerY: MotionValue<number>;
+  /** When false the render loop is fully suspended (hero scrolled offscreen). */
+  active?: boolean;
 };
 
 /**
@@ -398,7 +400,13 @@ type HazeCanvasProps = {
  * over the portrait: invisible over black, only ever adds light. Skipped
  * entirely under prefers-reduced-motion.
  */
-export function HazeCanvas({ portraitUrl, portraitRef, pointerX, pointerY }: HazeCanvasProps) {
+export function HazeCanvas({
+  portraitUrl,
+  portraitRef,
+  pointerX,
+  pointerY,
+  active = true,
+}: HazeCanvasProps) {
   const reducedMotion = useReducedMotion();
   const lumMap = useLuminanceMap(reducedMotion ? null : portraitUrl);
 
@@ -411,6 +419,7 @@ export function HazeCanvas({ portraitUrl, portraitRef, pointerX, pointerY }: Haz
       style={{ filter: "blur(5px)" }}
     >
       <Canvas
+        frameloop={active ? "always" : "never"}
         dpr={[0.55, 0.8]}
         gl={{
           alpha: true,

@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import dynamic from "next/dynamic";
 import {
   motion,
   useMotionValue,
@@ -10,9 +16,17 @@ import {
   type Variants,
 } from "framer-motion";
 import { ArrowDown, Download } from "lucide-react";
-import { HazeCanvas } from "@/components/hero/haze-canvas";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import type { Profile } from "@/lib/data/types";
+
+// three.js + react-three-fiber weigh ~500KB and exist only for this decorative
+// haze. Split them out of the initial bundle (ssr:false — it's a WebGL canvas
+// with nothing to server-render) so the hero paints without them, then mount
+// once the browser is idle.
+const HazeCanvas = dynamic(
+  () => import("@/components/hero/haze-canvas").then((m) => m.HazeCanvas),
+  { ssr: false },
+);
 
 // Text arrives last: fade-up + blur-to-focus, staggered line by line.
 const textContainer: Variants = {
@@ -57,6 +71,43 @@ export function Hero({ profile }: { profile: Profile }) {
   const reduced = useReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
   const portraitImgRef = useRef<HTMLImageElement | null>(null);
+
+  // Defer loading the heavy WebGL haze until the browser is idle, so it never
+  // competes with the LCP portrait for bandwidth or main-thread time.
+  const [hazeReady, setHazeReady] = useState(false);
+  // Pause the haze's render loop whenever the hero is scrolled out of view —
+  // no point running a per-frame shader behind eight other sections.
+  const [heroVisible, setHeroVisible] = useState(true);
+
+  useEffect(() => {
+    if (reduced) return;
+    const w = window as typeof window & {
+      requestIdleCallback?: (cb: () => void) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    let idleId = 0;
+    let timerId = 0;
+    if (w.requestIdleCallback) {
+      idleId = w.requestIdleCallback(() => setHazeReady(true));
+    } else {
+      timerId = window.setTimeout(() => setHazeReady(true), 600);
+    }
+    return () => {
+      if (idleId && w.cancelIdleCallback) w.cancelIdleCallback(idleId);
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [reduced]);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (reduced || !el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { rootMargin: "100px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
 
   // Pointer parallax — normalized -0.5..0.5, smoothed.
   const mx = useMotionValue(0);
@@ -162,6 +213,8 @@ export function Hero({ profile }: { profile: Profile }) {
                       ref={portraitImgRef}
                       src={profile.avatar_url}
                       alt={profile.full_name}
+                      fetchPriority="high"
+                      decoding="async"
                       className="h-full w-auto max-w-[94vw] object-contain object-bottom"
                       style={{
                         filter:
@@ -190,12 +243,15 @@ export function Hero({ profile }: { profile: Profile }) {
             transition={{ duration: 1.1, delay: 0.35, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <HazeCanvas
-              portraitUrl={profile.avatar_url}
-              portraitRef={portraitImgRef}
-              pointerX={sx}
-              pointerY={sy}
-            />
+            {hazeReady && (
+              <HazeCanvas
+                portraitUrl={profile.avatar_url}
+                portraitRef={portraitImgRef}
+                pointerX={sx}
+                pointerY={sy}
+                active={heroVisible}
+              />
+            )}
           </motion.div>
         </motion.div>
 
