@@ -1,12 +1,9 @@
 "use client";
 
 import {
-  useEffect,
   useRef,
-  useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import dynamic from "next/dynamic";
 import {
   motion,
   useMotionValue,
@@ -18,15 +15,6 @@ import {
 import { ArrowDown, Download } from "lucide-react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import type { Profile } from "@/lib/data/types";
-
-// three.js + react-three-fiber weigh ~500KB and exist only for this decorative
-// haze. Split them out of the initial bundle (ssr:false — it's a WebGL canvas
-// with nothing to server-render) so the hero paints without them, then mount
-// once the browser is idle.
-const HazeCanvas = dynamic(
-  () => import("@/components/hero/haze-canvas").then((m) => m.HazeCanvas),
-  { ssr: false },
-);
 
 // The portrait rarely changes, so it's served as a local static asset instead
 // of a Supabase fetch — same-origin, already optimized WebP, and cached with
@@ -79,48 +67,6 @@ const reducedTextItem: Variants = {
 export function Hero({ profile }: { profile: Profile }) {
   const reduced = useReducedMotion();
   const sectionRef = useRef<HTMLElement | null>(null);
-  const portraitImgRef = useRef<HTMLImageElement | null>(null);
-
-  // Defer loading the heavy WebGL haze until the browser is idle, so it never
-  // competes with the LCP portrait for bandwidth or main-thread time.
-  const [hazeReady, setHazeReady] = useState(false);
-  // Pause the haze's render loop whenever the hero is scrolled out of view —
-  // no point running a per-frame shader behind eight other sections.
-  const [heroVisible, setHeroVisible] = useState(true);
-
-  useEffect(() => {
-    if (reduced) return;
-    // The haze is a mouse-pointer parallax effect — meaningless on touch and
-    // by far the heaviest asset (three.js). Skip it entirely on devices
-    // without a fine pointer so they never download or run it.
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    const w = window as typeof window & {
-      requestIdleCallback?: (cb: () => void) => number;
-      cancelIdleCallback?: (id: number) => void;
-    };
-    let idleId = 0;
-    let timerId = 0;
-    if (w.requestIdleCallback) {
-      idleId = w.requestIdleCallback(() => setHazeReady(true));
-    } else {
-      timerId = window.setTimeout(() => setHazeReady(true), 600);
-    }
-    return () => {
-      if (idleId && w.cancelIdleCallback) w.cancelIdleCallback(idleId);
-      if (timerId) clearTimeout(timerId);
-    };
-  }, [reduced]);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (reduced || !el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setHeroVisible(entry.isIntersecting),
-      { rootMargin: "100px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [reduced]);
 
   // Pointer parallax — normalized -0.5..0.5, smoothed.
   const mx = useMotionValue(0);
@@ -140,7 +86,6 @@ export function Hero({ profile }: { profile: Profile }) {
     offset: ["start start", "end start"],
   });
   const glowScrollY = useTransform(scrollYProgress, [0, 1], ["0svh", "34svh"]);
-  const hazeScrollY = useTransform(scrollYProgress, [0, 1], ["0svh", "24svh"]);
   const portraitScrollY = useTransform(
     scrollYProgress,
     [0, 1],
@@ -231,9 +176,10 @@ export function Hero({ profile }: { profile: Profile }) {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      ref={portraitImgRef}
                       src={PORTRAIT_SRC}
                       alt={FULL_NAME}
+                      width={432}
+                      height={432}
                       // No crossOrigin: the portrait is same-origin, so a plain
                       // fetch is CORS-clean for the haze canvas anyway. Keeping
                       // it forced a CORS-mode request that didn't match the
@@ -256,30 +202,6 @@ export function Hero({ profile }: { profile: Profile }) {
 
         {/* Vignette above the portrait — darkens the cropped edges into black */}
         <div className="pointer-events-none absolute inset-0 z-30 bg-[radial-gradient(ellipse_at_center,transparent_28%,rgba(0,0,0,0.9)_100%)]" />
-
-        {/* Layered haze — rendered between the glows and the portrait so the
-          smoke can never overlay the photo or the text */}
-        <motion.div
-          style={reduced ? undefined : { y: hazeScrollY }}
-          className="pointer-events-none absolute inset-0 z-[15]"
-        >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.1, delay: 0.35, ease: "easeOut" }}
-            className="absolute inset-0"
-          >
-            {hazeReady && (
-              <HazeCanvas
-                portraitUrl={PORTRAIT_SRC}
-                portraitRef={portraitImgRef}
-                pointerX={sx}
-                pointerY={sy}
-                active={heroVisible}
-              />
-            )}
-          </motion.div>
-        </motion.div>
 
         {/* Legibility gradient under the text + blend into the next section.
           Two stacked gradients dissolve the portrait's cropped bottom into

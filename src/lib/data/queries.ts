@@ -1,27 +1,22 @@
-import { createClient } from "@/lib/supabase/server";
 import { createStaticClient } from "@/lib/supabase/static";
 import { placeholderProfile } from "@/lib/data/placeholder";
 import type { Profile } from "@/lib/data/types";
 
+// These all read public, RLS-gated content with the anon key. Using the
+// cookie-free static client (instead of the request-scoped cookie client)
+// keeps them out of Next's dynamic-rendering path, so the pages that use them
+// — the homepage, root layout, detail routes — prerender to static HTML and
+// serve with a near-zero TTFB. Freshness is handled on-demand: every admin
+// mutation already calls revalidatePath("/") (and the relevant detail path),
+// so edits go live immediately without paying a per-request Supabase roundtrip.
+
 export async function getProfile(): Promise<Profile> {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase.from("profile").select("*").limit(1).single();
   return data ?? placeholderProfile;
 }
 
 export async function getPublishedProjects() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("status", "published")
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: true });
-  return data ?? [];
-}
-
-/** Build-time safe variant (no cookies/request context) for generateStaticParams and sitemap.ts. */
-export async function getPublishedProjectsStatic() {
   const supabase = createStaticClient();
   const { data } = await supabase
     .from("projects")
@@ -32,8 +27,11 @@ export async function getPublishedProjectsStatic() {
   return data ?? [];
 }
 
+/** @deprecated Kept as an alias — getPublishedProjects is now build-time safe too. */
+export const getPublishedProjectsStatic = getPublishedProjects;
+
 export async function getProjectBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("projects")
     .select("*")
@@ -44,7 +42,7 @@ export async function getProjectBySlug(slug: string) {
 }
 
 export async function getSkills() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("skills")
     .select("*")
@@ -53,7 +51,7 @@ export async function getSkills() {
 }
 
 export async function getExperience() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("experience")
     .select("*")
@@ -62,7 +60,7 @@ export async function getExperience() {
 }
 
 export async function getEducation() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("education")
     .select("*")
@@ -71,16 +69,6 @@ export async function getEducation() {
 }
 
 export async function getPublications() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("publications")
-    .select("*")
-    .order("publication_date", { ascending: false });
-  return data ?? [];
-}
-
-/** Build-time safe variant (no cookies/request context) for generateStaticParams and sitemap.ts. */
-export async function getPublicationsStatic() {
   const supabase = createStaticClient();
   const { data } = await supabase
     .from("publications")
@@ -89,8 +77,11 @@ export async function getPublicationsStatic() {
   return data ?? [];
 }
 
+/** @deprecated Kept as an alias — getPublications is now build-time safe too. */
+export const getPublicationsStatic = getPublications;
+
 export async function getPublicationBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("publications")
     .select("*")
@@ -100,7 +91,7 @@ export async function getPublicationBySlug(slug: string) {
 }
 
 export async function getAchievements() {
-  const supabase = await createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("achievements")
     .select("*")

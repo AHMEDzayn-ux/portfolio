@@ -21,6 +21,11 @@ import {
   getSkills,
 } from "@/lib/data/queries";
 
+// Prerender to static HTML (all reads use the cookie-free client, so nothing
+// forces dynamic rendering). Admin mutations call revalidatePath("/") for
+// instant updates; this hourly window is just a safety net.
+export const revalidate = 3600;
+
 export default async function Home() {
   const [profile, projects, skills, experience, education, publications, achievements] =
     await Promise.all([
