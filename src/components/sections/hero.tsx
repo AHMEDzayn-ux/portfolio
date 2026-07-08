@@ -199,8 +199,13 @@ export function Hero({ profile }: { profile: Profile }) {
             className="absolute inset-0"
           >
             <motion.div
-              initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.055 }}
-              animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+              // No opacity fade here: this wraps the LCP portrait, and a
+              // server-rendered opacity:0 keeps the image invisible until
+              // framer-motion hydrates — which pushed LCP out by ~22s on a
+              // busy main thread. A pure scale-settle still paints (and counts
+              // for LCP) immediately, so the reveal stays without the cost.
+              initial={reduced ? false : { scale: 1.055 }}
+              animate={{ scale: 1 }}
               transition={{
                 duration: 1.3,
                 delay: 0.05,

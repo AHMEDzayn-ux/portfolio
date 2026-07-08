@@ -35,6 +35,16 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Start fetching the LCP portrait immediately, before the hero's client
+          JS is parsed. crossOrigin matches the <img> so the preload is reused. */}
+      <link
+        rel="preload"
+        as="image"
+        href="/portrait.webp"
+        type="image/webp"
+        fetchPriority="high"
+        crossOrigin="anonymous"
+      />
       <AmbientBackground />
       <ScrollSpine />
       <SiteNav />
