@@ -37,24 +37,24 @@ const PORTRAIT_SRC = "/portrait.webp";
 // Fixed in code rather than fetched from Supabase.
 const FULL_NAME = "Ruzayn Ahmedh";
 
-// Text arrives last: fade-up + blur-to-focus, staggered line by line.
+// Text arrives last: a clean fade-up, staggered line by line. Only opacity and
+// transform animate here — both run on the compositor, so the reveal stays
+// smooth even while the portrait settles and the haze spins up. (An earlier
+// version animated CSS blur to focus; that repaints every frame on the main
+// thread and was the primary source of load-time stutter.)
 const textContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.9 } },
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.7 } },
 };
 
 const textItem: Variants = {
-  hidden: { opacity: 0, y: 26, filter: "blur(8px)" },
+  hidden: { opacity: 0, y: 24 },
   show: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: {
-      duration: 0.8,
+      duration: 0.75,
       ease: [0.16, 1, 0.3, 1],
-      // Blur repaints every frame; resolve it a touch earlier than the
-      // transform/opacity so the expensive part finishes fast.
-      filter: { duration: 0.55, ease: "easeOut" },
     },
   },
 };
@@ -216,13 +216,16 @@ export function Hero({ profile }: { profile: Profile }) {
               {PORTRAIT_SRC && (
                 <div className="absolute bottom-[3svh] right-0 h-[84svh] sm:right-[2%] lg:right-[4%]">
                   {/* Breathing zoom — ~2% over 11s, its own wrapper so it never
-                    fights the intro scale settle above */}
+                    fights the intro scale settle above. Delayed until the intro
+                    settle has finished so the load window only ever runs one
+                    transform on the portrait at a time. */}
                   <motion.div
                     animate={reduced ? undefined : { scale: [1, 1.022, 1] }}
                     transition={{
                       duration: 11,
                       repeat: Infinity,
                       ease: "easeInOut",
+                      delay: 1.4,
                     }}
                     className="h-full"
                   >
@@ -278,19 +281,13 @@ export function Hero({ profile }: { profile: Profile }) {
           </motion.div>
         </motion.div>
 
-        {/* Legibility gradient under the text + blend into the next section */}
+        {/* Legibility gradient under the text + blend into the next section.
+          Two stacked gradients dissolve the portrait's cropped bottom into
+          solid black — no backdrop-blur band here on purpose: a full-width
+          backdrop-filter re-reads and re-blurs the whole region every
+          composited frame, which stuttered the load for no visible gain. */}
         <div className="pointer-events-none absolute inset-0 z-40 bg-gradient-to-t from-black/85 via-transparent to-black/25" />
-        {/* Glossy frosted band — progressively blurs (not hides) the photo's
-          bottom so it dissolves smoothly into the next section */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-36 backdrop-blur-md"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to bottom, transparent, black 85%)",
-            maskImage: "linear-gradient(to bottom, transparent, black 85%)",
-          }}
-        />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-24 bg-gradient-to-b from-transparent to-black" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-32 bg-gradient-to-b from-transparent to-black" />
 
         {/* Text */}
         <motion.div
