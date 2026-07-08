@@ -25,23 +25,26 @@ const PORTRAIT_SRC = "/portrait.webp";
 // Fixed in code rather than fetched from Supabase.
 const FULL_NAME = "Ruzayn Ahmedh";
 
-// Text arrives last: a clean fade-up, staggered line by line. Only opacity and
-// transform animate here — both run on the compositor, so the reveal stays
-// smooth even while the portrait settles and the haze spins up. (An earlier
-// version animated CSS blur to focus; that repaints every frame on the main
-// thread and was the primary source of load-time stutter.)
+// The text flows in as one continuous cascade that overlaps the portrait's
+// scale-settle — no dead gap between the photo painting and the name appearing.
+// A short delayChildren just lets the first frame land, then each line eases up
+// on a soft expo curve, staggered line by line. Only opacity and transform
+// animate here — both run on the compositor, so the reveal stays butter-smooth
+// even while the portrait is still settling. (An earlier version animated CSS
+// blur to focus; that repaints every frame on the main thread and was the
+// primary source of load-time stutter.)
 const textContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.7 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.22 } },
 };
 
 const textItem: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.75,
+      duration: 0.85,
       ease: [0.16, 1, 0.3, 1],
     },
   },
@@ -58,11 +61,11 @@ const reducedTextItem: Variants = {
 };
 
 /**
- * Cinematic hero: a full-height portrait emerging through thin layered haze.
+ * Cinematic hero: a full-height portrait emerging from soft layered glows.
  * Depth comes entirely from independent motion — pointer parallax (portrait
- * moves most, glows least, haze layers each on their own depth inside the
- * shader), a slow breathing zoom, and scroll parallax where every layer lags
- * the page at its own rate.
+ * moves most, glows least and opposite), a slow breathing zoom, and scroll
+ * parallax where every layer lags the page at its own rate. On load the glows,
+ * portrait settle, and text cascade overlap into one continuous reveal.
  */
 export function Hero({ profile }: { profile: Profile }) {
   const reduced = useReducedMotion();
@@ -273,7 +276,7 @@ export function Hero({ profile }: { profile: Profile }) {
           aria-label="Scroll to about section"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.6, duration: 0.9, ease: "easeOut" }}
+          transition={{ delay: 1.1, duration: 0.9, ease: "easeOut" }}
           className="absolute bottom-6 left-1/2 z-50 -translate-x-1/2"
         >
           <motion.span
