@@ -231,10 +231,11 @@ export function Hero({ profile }: { profile: Profile }) {
                       ref={portraitImgRef}
                       src={PORTRAIT_SRC}
                       alt={FULL_NAME}
-                      // Match the crossOrigin the haze canvas uses to sample
-                      // this same image, so the browser reuses one cache entry
-                      // instead of fetching the portrait twice.
-                      crossOrigin="anonymous"
+                      // No crossOrigin: the portrait is same-origin, so a plain
+                      // fetch is CORS-clean for the haze canvas anyway. Keeping
+                      // it forced a CORS-mode request that didn't match the
+                      // navigation preload, so the browser re-fetched the LCP
+                      // image late (~1.5s load delay) instead of reusing it.
                       fetchPriority="high"
                       decoding="async"
                       className="h-full w-auto max-w-[94vw] object-contain object-bottom"

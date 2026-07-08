@@ -243,7 +243,9 @@ function useLuminanceMap(url: string | null) {
     if (!url) return;
     let cancelled = false;
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    // No crossOrigin: the portrait is same-origin, so it's CORS-clean for
+    // getImageData without forcing a CORS-mode fetch. This keeps the haze's
+    // sampler on the same cache entry as the visible <img> and its preload.
     img.onload = () => {
       if (cancelled) return;
       try {
