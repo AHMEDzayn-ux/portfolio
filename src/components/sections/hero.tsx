@@ -28,6 +28,12 @@ const HazeCanvas = dynamic(
   { ssr: false },
 );
 
+// The portrait rarely changes, so it's served as a local static asset instead
+// of a Supabase fetch — same-origin, already optimized WebP, and cached with
+// Next's immutable /_next-style static headers. To swap it, replace
+// public/portrait.webp.
+const PORTRAIT_SRC = "/portrait.webp";
+
 // Text arrives last: fade-up + blur-to-focus, staggered line by line.
 const textContainer: Variants = {
   hidden: {},
@@ -195,7 +201,7 @@ export function Hero({ profile }: { profile: Profile }) {
               }}
               className="absolute inset-0"
             >
-              {profile.avatar_url && (
+              {PORTRAIT_SRC && (
                 <div className="absolute bottom-[3svh] right-0 h-[84svh] sm:right-[2%] lg:right-[4%]">
                   {/* Breathing zoom — ~2% over 11s, its own wrapper so it never
                     fights the intro scale settle above */}
@@ -211,7 +217,7 @@ export function Hero({ profile }: { profile: Profile }) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       ref={portraitImgRef}
-                      src={profile.avatar_url}
+                      src={PORTRAIT_SRC}
                       alt={profile.full_name}
                       // Match the crossOrigin the haze canvas uses to sample
                       // this same image, so the browser reuses one cache entry
@@ -249,7 +255,7 @@ export function Hero({ profile }: { profile: Profile }) {
           >
             {hazeReady && (
               <HazeCanvas
-                portraitUrl={profile.avatar_url}
+                portraitUrl={PORTRAIT_SRC}
                 portraitRef={portraitImgRef}
                 pointerX={sx}
                 pointerY={sy}
