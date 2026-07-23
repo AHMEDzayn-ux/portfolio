@@ -90,6 +90,27 @@ export async function updateProject(id: string, input: unknown) {
   return { ok: true as const };
 }
 
+export async function reorderProjects(orderedIds: string[]) {
+  const supabase = await requireAdmin();
+
+  // Normalize sort_order to contiguous indices so the ordering is deterministic
+  // and free of ties (all rows default to 0 otherwise).
+  const results = await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from("projects").update({ sort_order: index }).eq("id", id)
+    )
+  );
+
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    return { ok: false as const, error: failed.error.message };
+  }
+
+  revalidatePath("/admin/projects");
+  revalidatePublic();
+  return { ok: true as const };
+}
+
 export async function deleteProject(id: string, slug: string) {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("projects").delete().eq("id", id);

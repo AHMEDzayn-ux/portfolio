@@ -214,15 +214,11 @@ export function ProjectForm({ project }: { project?: ProjectRow }) {
         />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label htmlFor="sort_order">Sort order</Label>
-          <Input
-            id="sort_order"
-            type="number"
-            {...register("sort_order", { valueAsNumber: true })}
-          />
-        </div>
+      {/* Order is managed on the Projects list via the up/down arrows; we keep
+          the loaded value here so saving an edit doesn't disturb it. */}
+      <input type="hidden" {...register("sort_order", { valueAsNumber: true })} />
+
+      <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Status</Label>
           <Controller

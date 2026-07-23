@@ -1,15 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ProjectRowActions } from "@/components/admin/project-row-actions";
+import { ProjectsReorderTable } from "@/components/admin/projects-reorder-table";
 import { listProjects } from "@/lib/actions/projects";
 
 export default async function AdminProjectsPage() {
@@ -20,7 +11,9 @@ export default async function AdminProjectsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-semibold tracking-tight">Projects</h1>
-          <p className="mt-1 text-sm text-foreground/60">{projects.length} total</p>
+          <p className="mt-1 text-sm text-foreground/60">
+            {projects.length} total · use the arrows to set the order shown on your site
+          </p>
         </div>
         <Link
           href="/admin/projects/new"
@@ -31,33 +24,16 @@ export default async function AdminProjectsPage() {
         </Link>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-border/70">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {projects.map((project) => (
-              <TableRow key={project.id}>
-                <TableCell className="font-medium">{project.title}</TableCell>
-                <TableCell>
-                  <Badge variant={project.status === "published" ? "default" : "secondary"}>
-                    {project.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{project.featured ? "Yes" : "—"}</TableCell>
-                <TableCell className="text-right">
-                  <ProjectRowActions id={project.id} slug={project.slug} title={project.title} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="mt-8">
+        <ProjectsReorderTable
+          projects={projects.map((p) => ({
+            id: p.id,
+            title: p.title,
+            slug: p.slug,
+            status: p.status,
+            featured: p.featured,
+          }))}
+        />
       </div>
     </div>
   );
