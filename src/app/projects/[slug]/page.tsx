@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/motion/reveal";
+import { Markdown } from "@/components/markdown";
 import { MediaCarousel } from "@/components/projects/media-carousel";
 import { ProjectHero } from "@/components/projects/project-hero";
 import { getProjectBySlug, getPublishedProjectsStatic } from "@/lib/data/queries";
@@ -36,9 +37,9 @@ export default async function ProjectPage({
             <h2 className="text-sm font-medium uppercase tracking-[0.3em] text-brand">
               Overview
             </h2>
-            <div className="mt-5 space-y-4 whitespace-pre-line text-base leading-relaxed text-foreground/75 sm:text-lg">
+            <Markdown className="mt-5">
               {project.long_description ?? project.description}
-            </div>
+            </Markdown>
           </div>
 
           <aside className="h-fit rounded-2xl border border-border/60 bg-card p-6">

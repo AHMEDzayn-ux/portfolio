@@ -55,7 +55,7 @@ export function ProjectHero({
               initial={{ opacity: 0, scale: 1.06 }}
               animate={{ opacity: 0.5, scale: 1 }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain object-center"
             />
           ) : (
             <motion.video
@@ -68,7 +68,7 @@ export function ProjectHero({
               initial={{ opacity: 0, scale: 1.06 }}
               animate={{ opacity: 0.5, scale: 1 }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain object-center"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/60 to-black" />

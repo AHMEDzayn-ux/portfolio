@@ -125,6 +125,10 @@ export function ProjectForm({ project }: { project?: ProjectRow }) {
       <div className="space-y-2">
         <Label htmlFor="long_description">Long description (project page)</Label>
         <Textarea id="long_description" rows={5} {...register("long_description")} />
+        <p className="text-xs text-foreground/50">
+          Markdown supported — paste formatted text (headings, **bold**, lists, links) and it
+          renders on the project page.
+        </p>
       </div>
 
       <div className="space-y-2">
