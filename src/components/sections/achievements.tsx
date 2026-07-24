@@ -17,7 +17,7 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
           Achievements
         </p>
         <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-          Awards &amp; certifications
+          Awards &amp; honors
         </h2>
       </Reveal>
 

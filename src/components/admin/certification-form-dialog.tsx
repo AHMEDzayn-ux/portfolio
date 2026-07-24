@@ -40,6 +40,7 @@ export function CertificationFormDialog({ entry }: { entry?: CertificationRow })
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<CertificationInput>({
     resolver: zodResolver(certificationSchema),
@@ -64,18 +65,18 @@ export function CertificationFormDialog({ entry }: { entry?: CertificationRow })
         },
   });
 
-  async function onSubmit(data: CertificationInput) {
-    const image_url = media[0]?.url ?? "";
-    if (!image_url) {
-      toast.error("Upload a certificate image.");
-      return;
-    }
+  function handleMediaChange(next: ProjectMedia[]) {
+    setMedia(next);
+    // Keep the validated form field in sync with the uploader, otherwise the
+    // zod resolver sees an empty image_url and silently blocks submit.
+    setValue("image_url", next[0]?.url ?? "", { shouldValidate: true });
+  }
 
+  async function onSubmit(data: CertificationInput) {
     setPending(true);
-    const payload = { ...data, image_url };
     const result = entry
-      ? await updateCertification(entry.id, payload)
-      : await createCertification(payload);
+      ? await updateCertification(entry.id, data)
+      : await createCertification(data);
     setPending(false);
 
     if (result.ok) {
@@ -128,12 +129,16 @@ export function CertificationFormDialog({ entry }: { entry?: CertificationRow })
 
           <div className="space-y-2">
             <Label>Certificate image</Label>
+            <input type="hidden" {...register("image_url")} />
             <MediaUploader
               media={media}
-              onChange={setMedia}
+              onChange={handleMediaChange}
               maxItems={1}
               addLabel="Upload certificate"
             />
+            {errors.image_url && (
+              <p className="text-xs text-destructive">{errors.image_url.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
