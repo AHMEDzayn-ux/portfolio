@@ -5,10 +5,7 @@ import type { Publication } from "@/lib/data/types";
 export function Publications({ publications }: { publications: Publication[] }) {
   if (publications.length === 0) return null;
 
-  const sorted = [...publications].sort(
-    (a, b) => new Date(b.publication_date).getTime() - new Date(a.publication_date).getTime()
-  );
-
+  // Order is set in the admin (arrow up/down → sort_order), applied by the query.
   return (
     <section id="publications" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
       <Reveal>
@@ -20,7 +17,7 @@ export function Publications({ publications }: { publications: Publication[] }) 
         </h2>
       </Reveal>
 
-      <PublicationsCarousel publications={sorted} className="mt-12" />
+      <PublicationsCarousel publications={publications} className="mt-12" />
     </section>
   );
 }

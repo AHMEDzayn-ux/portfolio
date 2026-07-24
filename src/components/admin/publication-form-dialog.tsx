@@ -134,15 +134,6 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
             <Textarea id="description" rows={3} {...register("description")} />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="sort_order">Sort order</Label>
-            <Input
-              id="sort_order"
-              type="number"
-              {...register("sort_order", { valueAsNumber: true })}
-            />
-          </div>
-
           <DialogFooter>
             <button
               type="submit"

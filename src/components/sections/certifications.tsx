@@ -5,10 +5,7 @@ import type { Certification } from "@/lib/data/types";
 export function Certifications({ certifications }: { certifications: Certification[] }) {
   if (certifications.length === 0) return null;
 
-  const sorted = [...certifications].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
+  // Order is set in the admin (arrow up/down → sort_order), applied by the query.
   return (
     <section id="certifications" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
       <Reveal>
@@ -20,7 +17,7 @@ export function Certifications({ certifications }: { certifications: Certificati
         </h2>
       </Reveal>
 
-      <CertificationsCarousel certifications={sorted} className="mt-12" />
+      <CertificationsCarousel certifications={certifications} className="mt-12" />
     </section>
   );
 }

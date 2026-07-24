@@ -73,6 +73,7 @@ export async function getPublications() {
   const { data } = await supabase
     .from("publications")
     .select("*")
+    .order("sort_order", { ascending: true })
     .order("publication_date", { ascending: false });
   return data ?? [];
 }
@@ -95,6 +96,7 @@ export async function getAchievements() {
   const { data } = await supabase
     .from("achievements")
     .select("*")
+    .order("sort_order", { ascending: true })
     .order("date", { ascending: false });
   return data ?? [];
 }
@@ -104,6 +106,7 @@ export async function getCertifications() {
   const { data } = await supabase
     .from("certifications")
     .select("*")
+    .order("sort_order", { ascending: true })
     .order("date", { ascending: false });
   return data ?? [];
 }

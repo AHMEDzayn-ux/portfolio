@@ -80,6 +80,27 @@ export async function updatePublication(id: string, input: unknown) {
   return { ok: true as const };
 }
 
+export async function reorderPublications(orderedIds: string[]) {
+  const supabase = await requireAdmin();
+
+  // Normalize sort_order to contiguous indices so the ordering is deterministic
+  // and free of ties (all rows default to 0 otherwise).
+  const results = await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from("publications").update({ sort_order: index }).eq("id", id)
+    )
+  );
+
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    return { ok: false as const, error: failed.error.message };
+  }
+
+  revalidatePath("/admin/publications");
+  revalidatePublic();
+  return { ok: true as const };
+}
+
 export async function deletePublication(id: string) {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("publications").delete().eq("id", id);

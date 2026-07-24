@@ -6,10 +6,7 @@ import type { Achievement } from "@/lib/data/types";
 export function Achievements({ achievements }: { achievements: Achievement[] }) {
   if (achievements.length === 0) return null;
 
-  const sorted = [...achievements].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
+  // Order is set in the admin (arrow up/down → sort_order), applied by the query.
   return (
     <section id="achievements" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
       <Reveal>
@@ -22,7 +19,7 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
       </Reveal>
 
       <Reveal className="mt-12 grid gap-4 sm:grid-cols-2">
-        {sorted.map((item) => (
+        {achievements.map((item) => (
           <article
             key={item.id}
             className="rounded-2xl border border-border/70 bg-secondary/20 p-6 transition-colors hover:border-brand/50"
