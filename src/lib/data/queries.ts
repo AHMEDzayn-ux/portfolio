@@ -98,3 +98,12 @@ export async function getAchievements() {
     .order("date", { ascending: false });
   return data ?? [];
 }
+
+export async function getCertifications() {
+  const supabase = createStaticClient();
+  const { data } = await supabase
+    .from("certifications")
+    .select("*")
+    .order("date", { ascending: false });
+  return data ?? [];
+}

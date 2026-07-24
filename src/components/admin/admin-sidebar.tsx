@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Award,
+  BadgeCheck,
   BookOpen,
   Briefcase,
   FolderGit2,
@@ -25,6 +26,7 @@ const LINKS = [
   { href: "/admin/education", label: "Education", icon: GraduationCap },
   { href: "/admin/publications", label: "Publications", icon: BookOpen },
   { href: "/admin/achievements", label: "Achievements", icon: Award },
+  { href: "/admin/certifications", label: "Certifications", icon: BadgeCheck },
   { href: "/admin/messages", label: "Messages", icon: Mail },
 ];
 

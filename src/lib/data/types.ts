@@ -84,3 +84,13 @@ export type Achievement = {
   url: string | null;
   date: string;
 };
+
+export type Certification = {
+  id: string;
+  title: string;
+  issuer: string | null;
+  description: string | null;
+  image_url: string;
+  credential_url: string | null;
+  date: string;
+};

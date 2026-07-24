@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Award, BookOpen, FolderGit2, GraduationCap, Mail, Sparkles } from "lucide-react";
+import { Award, BadgeCheck, BookOpen, FolderGit2, GraduationCap, Mail, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 async function getStats() {
@@ -11,6 +11,7 @@ async function getStats() {
     { count: educationCount },
     { count: publicationCount },
     { count: achievementCount },
+    { count: certificationCount },
     { count: unreadCount },
   ] = await Promise.all([
     supabase.from("projects").select("*", { count: "exact", head: true }),
@@ -18,6 +19,7 @@ async function getStats() {
     supabase.from("education").select("*", { count: "exact", head: true }),
     supabase.from("publications").select("*", { count: "exact", head: true }),
     supabase.from("achievements").select("*", { count: "exact", head: true }),
+    supabase.from("certifications").select("*", { count: "exact", head: true }),
     supabase
       .from("contact_messages")
       .select("*", { count: "exact", head: true })
@@ -30,6 +32,7 @@ async function getStats() {
     education: educationCount ?? 0,
     publications: publicationCount ?? 0,
     achievements: achievementCount ?? 0,
+    certifications: certificationCount ?? 0,
     unread: unreadCount ?? 0,
   };
 }
@@ -48,6 +51,12 @@ export default async function AdminDashboard() {
       icon: BookOpen,
     },
     { href: "/admin/achievements", label: "Achievements", value: stats.achievements, icon: Award },
+    {
+      href: "/admin/certifications",
+      label: "Certifications",
+      value: stats.certifications,
+      icon: BadgeCheck,
+    },
     { href: "/admin/messages", label: "Unread messages", value: stats.unread, icon: Mail },
   ];
 

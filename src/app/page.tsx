@@ -9,10 +9,12 @@ import { ExperienceTimeline } from "@/components/sections/experience-timeline";
 import { Education } from "@/components/sections/education";
 import { Publications } from "@/components/sections/publications";
 import { Achievements } from "@/components/sections/achievements";
+import { Certifications } from "@/components/sections/certifications";
 import { ContactForm } from "@/components/sections/contact-form";
 import { Footer } from "@/components/sections/footer";
 import {
   getAchievements,
+  getCertifications,
   getEducation,
   getExperience,
   getProfile,
@@ -27,16 +29,25 @@ import {
 export const revalidate = 3600;
 
 export default async function Home() {
-  const [profile, projects, skills, experience, education, publications, achievements] =
-    await Promise.all([
-      getProfile(),
-      getPublishedProjects(),
-      getSkills(),
-      getExperience(),
-      getEducation(),
-      getPublications(),
-      getAchievements(),
-    ]);
+  const [
+    profile,
+    projects,
+    skills,
+    experience,
+    education,
+    publications,
+    achievements,
+    certifications,
+  ] = await Promise.all([
+    getProfile(),
+    getPublishedProjects(),
+    getSkills(),
+    getExperience(),
+    getEducation(),
+    getPublications(),
+    getAchievements(),
+    getCertifications(),
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -63,6 +74,7 @@ export default async function Home() {
         <Education entries={education} />
         <Publications publications={publications} />
         <Achievements achievements={achievements} />
+        <Certifications certifications={certifications} />
         <ContactForm profile={profile} />
       </main>
       <Footer profile={profile} />
