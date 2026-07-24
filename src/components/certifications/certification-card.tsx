@@ -20,7 +20,7 @@ export function CertificationCard({ certification }: { certification: Certificat
   return (
     <Dialog>
       <DialogTrigger className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card text-left transition-colors hover:border-brand/50">
-        <div className="relative aspect-[4/3] overflow-hidden bg-secondary/50">
+        <div className="relative aspect-[16/10] overflow-hidden bg-secondary/50">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={certification.image_url}
