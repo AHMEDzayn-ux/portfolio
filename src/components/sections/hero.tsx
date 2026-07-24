@@ -35,7 +35,7 @@ const FULL_NAME = "Ruzayn Ahmedh";
 // primary source of load-time stutter.)
 const textContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.22 } },
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
 };
 
 const textItem: Variants = {
@@ -52,7 +52,7 @@ const textItem: Variants = {
 
 const reducedTextContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.06, delayChildren: 0.2 } },
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.03 } },
 };
 
 const reducedTextItem: Variants = {
@@ -128,7 +128,7 @@ export function Hero({ profile }: { profile: Profile }) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1.4, delay: 0.2, ease: "easeOut" }}
+              transition={{ duration: 1.1, delay: 0, ease: "easeOut" }}
               className="absolute inset-0"
             >
               <div className="absolute left-1/2 top-1/2 h-[95vh] w-[120vw] max-h-[980px] max-w-[1800px] -translate-x-[62%] -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(96,152,222,0.44),rgba(96,152,222,0.22)_44%,transparent_78%)] blur-3xl" />
@@ -233,7 +233,7 @@ export function Hero({ profile }: { profile: Profile }) {
             </motion.p>
             <motion.h1
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-5 max-w-3xl font-heading text-7xl font-semibold leading-[1.02] tracking-tight sm:text-8xl lg:text-9xl"
+              className="mt-5 max-w-3xl font-heading text-6xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl"
             >
               {FULL_NAME.split(" ").map((word, i) => (
                 <span key={i} className="block">
