@@ -358,7 +358,7 @@ export type Database = {
       }
       skills: {
         Row: {
-          category: "design" | "engineering" | "tools" | "other"
+          category: "languages" | "frameworks" | "databases" | "ai" | "cloud" | "design" | "tools" | "other" | "engineering"
           created_at: string
           icon: string | null
           id: string
@@ -368,7 +368,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          category?: "design" | "engineering" | "tools" | "other"
+          category?: "languages" | "frameworks" | "databases" | "ai" | "cloud" | "design" | "tools" | "other" | "engineering"
           created_at?: string
           icon?: string | null
           id?: string
@@ -378,7 +378,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          category?: "design" | "engineering" | "tools" | "other"
+          category?: "languages" | "frameworks" | "databases" | "ai" | "cloud" | "design" | "tools" | "other" | "engineering"
           created_at?: string
           icon?: string | null
           id?: string

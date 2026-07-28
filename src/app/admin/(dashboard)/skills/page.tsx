@@ -1,5 +1,4 @@
-import { SkillFormDialog } from "@/components/admin/skill-form-dialog";
-import { SkillsTable } from "@/components/admin/skills-table";
+import { SkillsGroupEditor } from "@/components/admin/skills-group-editor";
 import { listSkills } from "@/lib/actions/skills";
 
 export default async function AdminSkillsPage() {
@@ -7,15 +6,15 @@ export default async function AdminSkillsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight">Skills</h1>
-          <p className="mt-1 text-sm text-foreground/60">{skills.length} total</p>
-        </div>
-        <SkillFormDialog />
+      <div>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">Skills</h1>
+        <p className="mt-1 text-sm text-foreground/60">
+          {skills.length} total — edit a group as one comma-separated list. These
+          are the same groups the public section renders.
+        </p>
       </div>
 
-      <SkillsTable skills={skills} />
+      <SkillsGroupEditor skills={skills} />
     </div>
   );
 }

@@ -1,100 +1,28 @@
 import { Reveal } from "@/components/motion/reveal";
+import {
+  SKILL_GROUPS,
+  SKILL_GROUP_LABELS,
+  resolveSkillGroup,
+  type SkillGroup,
+} from "@/lib/skill-groups";
 import type { Skill } from "@/lib/data/types";
 
-/**
- * Skills are stored under four broad database categories (engineering, design,
- * tools, other), which is too coarse to read at a glance — everything
- * technical lands in one 20-item wall where a Postgres or an AWS disappears
- * between a Figma and a Git. So the display groups are derived here from the
- * skill name instead: recruiters scan for "Databases" and "Cloud", not for
- * "Engineering".
- *
- * Matching is first-match-wins in GROUP_ORDER, so a name that could fit two
- * groups (Supabase → database, not cloud) is settled by group order rather
- * than by regex precedence. Anything unmatched falls back to its database
- * category, so a skill added later still shows up somewhere sensible.
- */
-type GroupKey =
-  | "languages"
-  | "frameworks"
-  | "databases"
-  | "ai"
-  | "cloud"
-  | "design"
-  | "tools";
-
-const GROUP_LABELS: Record<GroupKey, string> = {
-  languages: "Languages",
-  frameworks: "Frameworks & Libraries",
-  databases: "Databases",
-  ai: "AI, ML & Data",
-  cloud: "Cloud & DevOps",
-  design: "Design",
-  tools: "Tools",
-};
-
-const GROUP_ORDER: GroupKey[] = [
-  "languages",
-  "frameworks",
-  "databases",
-  "ai",
-  "cloud",
-  "design",
-  "tools",
-];
-
-// Word-ish boundaries on both sides so "Java" can't swallow "JavaScript" and
-// "R" can't match every name containing the letter.
-const GROUP_PATTERNS: Record<GroupKey, RegExp> = {
-  // c++/c#/.net sit outside the \b(...)\b group: `+`, `#` and `.` aren't word
-  // characters, so a trailing \b never matches after them.
-  languages:
-    /\b(type ?script|java ?script|python|java|kotlin|swift|dart|go|golang|rust|ruby|php|perl|scala|objective-c|matlab|sql|pl\/?sql|html|css|sass|scss|shell|bash|assembly|verilog|vhdl|r)\b|c\+\+|c#/i,
-  frameworks:
-    /\b(react|next\.?js|node\.?js|node|express|nest\.?js|vue|nuxt|angular|svelte|remix|astro|django|flask|fastapi|spring|laravel|rails|asp\.net|flutter|react native|jquery|bootstrap|tailwind|material ?ui|shadcn|redux|graphql|rest api|socket\.io)\b|\.net/i,
-  databases:
-    /\b(postgres(ql)?|mysql|maria ?db|sqlite|sql server|oracle|mongo ?db|firebase|firestore|supabase|redis|dynamo ?db|neo4j|cassandra|elasticsearch|prisma|drizzle|sequelize|database|dbms)\b/i,
-  ai: /\b(ai|ml|machine learning|deep learning|neural|nlp|computer vision|tensor ?flow|py ?torch|keras|scikit|sklearn|pandas|numpy|matplotlib|open ?cv|hugging ?face|lang ?chain|llm|rag|data (science|analysis|analytics|visualization)|power ?bi|tableau|jupyter)\b/i,
-  cloud:
-    /\b(aws|amazon web services|azure|gcp|google cloud|docker|kubernetes|k8s|terraform|vercel|netlify|heroku|render|cloudflare|nginx|apache|linux|ubuntu|ci\/?cd|github actions|jenkins|serverless)\b/i,
-  design:
-    /\b(figma|ui\/?ux|ui|ux|user (interface|experience)|adobe|photoshop|illustrator|xd|canva|blender|wireframe|wireframing|prototyping|design system|typography|branding)\b/i,
-  tools:
-    /\b(git|git ?hub|git ?lab|bitbucket|vs ?code|visual studio|intellij|postman|jira|trello|notion|slack|figjam|excel|word|powerpoint|office|agile|scrum|testing|jest|cypress|selenium)\b/i,
-};
-
-// Skills that match nothing above keep their database category, mapped onto the
-// closest display group ("other" gets its own bucket at the end).
-const CATEGORY_FALLBACK: Record<Skill["category"], GroupKey | "other"> = {
-  engineering: "frameworks",
-  design: "design",
-  tools: "tools",
-  other: "other",
-};
-
-function groupFor(skill: Skill): GroupKey | "other" {
-  for (const key of GROUP_ORDER) {
-    if (GROUP_PATTERNS[key].test(skill.name)) return key;
-  }
-  return CATEGORY_FALLBACK[skill.category];
-}
-
 export function Skills({ skills }: { skills: Skill[] }) {
-  const buckets = new Map<GroupKey | "other", Skill[]>();
+  // Grouping and labels live in @/lib/skill-groups, shared with the admin
+  // editor so the boxes there are exactly the groups rendered here.
+  const buckets = new Map<SkillGroup, Skill[]>();
   for (const skill of skills) {
-    const key = groupFor(skill);
+    const key = resolveSkillGroup(skill.name, skill.category);
     const bucket = buckets.get(key);
     if (bucket) bucket.push(skill);
     else buckets.set(key, [skill]);
   }
 
-  const grouped = [...GROUP_ORDER, "other" as const]
-    .map((key) => ({
-      key,
-      label: key === "other" ? "Other" : GROUP_LABELS[key],
-      items: buckets.get(key) ?? [],
-    }))
-    .filter((group) => group.items.length > 0);
+  const grouped = SKILL_GROUPS.map((key) => ({
+    key,
+    label: SKILL_GROUP_LABELS[key],
+    items: buckets.get(key) ?? [],
+  })).filter((group) => group.items.length > 0);
 
   return (
     <section id="skills" className="mx-auto max-w-6xl px-6 py-10 sm:py-12">

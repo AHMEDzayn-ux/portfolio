@@ -1,3 +1,5 @@
+import type { SkillCategory } from "@/lib/skill-groups";
+
 export type Profile = {
   full_name: string;
   title: string;
@@ -38,7 +40,9 @@ export type Project = {
 export type Skill = {
   id: string;
   name: string;
-  category: "design" | "engineering" | "tools" | "other";
+  /** Stored display group; may still hold the legacy "engineering" on rows
+   * written before migration 0009. Resolve it with resolveSkillGroup(). */
+  category: SkillCategory;
   level: number | null;
 };
 
