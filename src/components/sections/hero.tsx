@@ -119,7 +119,11 @@ export function Hero({ profile }: { profile: Profile }) {
         // paper-bright hero instead of a black slab the toggle can't touch.
         className="relative isolate h-[100svh] w-full overflow-hidden bg-[var(--hero-surface)] text-foreground transition-colors duration-500"
       >
-        {/* Background glows — deepest layer */}
+        {/* Base wash — the canvas's own colour, below every moving layer.
+          `none` in dark mode, where black is the intended canvas. */}
+        <div className="pointer-events-none absolute inset-0 z-0 bg-[image:var(--hero-wash)]" />
+
+        {/* Background glows — deepest moving layer */}
         <motion.div
           style={reduced ? undefined : { y: glowScrollY }}
           className="pointer-events-none absolute inset-0 z-10"

@@ -95,31 +95,43 @@
      below, and the portrait gets a grounding shadow so its cutout edge doesn't
      look pasted on. */
   --hero-surface: var(--background);
-  /* Pushed harder than a "tasteful" light wash would be: over near-white these
-     read as soft colour, not as lamps, so a timid alpha just looks like a blank
-     page. */
+  /* The canvas itself is a tinted sky-to-sand gradient, not flat white. The
+     first light version washed white over white — glows, a white vignette and
+     a white scrim all stacked — and the result read as fog. Colour now comes
+     from this base layer, so the overlays above it can stay light-handed. */
+  --hero-wash: linear-gradient(
+    168deg,
+    #cfdff3 0%,
+    #e3ebf7 30%,
+    #f1eee9 62%,
+    #dfe7f3 100%
+  );
   --hero-glow-cool: radial-gradient(
     ellipse,
-    rgba(96, 152, 222, 0.46),
-    rgba(96, 152, 222, 0.2) 44%,
+    rgba(72, 132, 212, 0.42),
+    rgba(72, 132, 212, 0.18) 44%,
     transparent 76%
   );
   --hero-glow-warm: radial-gradient(
     ellipse,
-    rgba(236, 138, 62, 0.42),
-    rgba(236, 138, 62, 0.18) 44%,
+    rgba(232, 140, 64, 0.38),
+    rgba(232, 140, 64, 0.16) 44%,
     transparent 76%
   );
+  /* Darkens the edges instead of whitening them — a light vignette over a light
+     canvas is exactly the smog it was meant to prevent. */
   --hero-vignette: radial-gradient(
     ellipse at center,
-    transparent 32%,
-    rgba(238, 240, 244, 0.78) 100%
+    transparent 42%,
+    rgba(28, 52, 88, 0.22) 100%
   );
+  /* Only the bottom band lightens, and only enough to carry dark text over the
+     portrait. The upper two thirds stay perfectly clear. */
   --hero-scrim: linear-gradient(
     to top,
-    rgba(240, 242, 245, 0.9),
-    rgba(240, 242, 245, 0.1) 46%,
-    rgba(246, 247, 249, 0.35)
+    rgba(247, 249, 252, 0.94),
+    rgba(247, 249, 252, 0.24) 34%,
+    transparent 58%
   );
   --hero-portrait-filter: contrast(1.02) saturate(1) brightness(1.01)
     drop-shadow(0 22px 45px rgba(15, 23, 42, 0.22));
@@ -164,6 +176,8 @@
   /* Hero surface — the original cinematic look: pure black canvas, glows that
      actually glow, and edges that fall off into black. */
   --hero-surface: #000;
+  /* Dark mode needs no base wash — the glows do all the work over black. */
+  --hero-wash: none;
   --hero-glow-cool: radial-gradient(
     ellipse,
     rgba(96, 152, 222, 0.44),

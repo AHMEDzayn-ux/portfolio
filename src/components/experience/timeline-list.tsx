@@ -41,6 +41,40 @@ function isNonTechnical(entry: ExperienceEntry) {
   );
 }
 
+const BULLET_PREFIX = /^\s*[-–—•*·]\s+/;
+
+/**
+ * Descriptions are free text typed in the admin, and bullet lists get written
+ * there the natural way — one item per line, often with a leading dash. HTML
+ * collapses those newlines, so the whole list used to render as one run-on
+ * paragraph. Split it back apart: newlines first, falling back to inline "•"
+ * separators for descriptions pasted from a CV as a single line.
+ *
+ * Returns [] when the text is genuinely a paragraph, so prose still renders
+ * as prose rather than as a one-item list.
+ */
+function toBullets(description: string): string[] {
+  const lines = description
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const items =
+    lines.length > 1
+      ? lines
+      : description
+          .split(/\s+[•·]\s+/)
+          .map((part) => part.trim())
+          .filter(Boolean);
+
+  if (items.length > 1) return items.map((item) => item.replace(BULLET_PREFIX, ""));
+  // A single line still counts as a bullet if it was written as one.
+  if (items.length === 1 && BULLET_PREFIX.test(items[0])) {
+    return [items[0].replace(BULLET_PREFIX, "")];
+  }
+  return [];
+}
+
 export function TimelineList({ entries }: { entries: ExperienceEntry[] }) {
   const primary = entries.filter((entry) => !isNonTechnical(entry));
   const secondary = entries.filter(isNonTechnical);
@@ -94,7 +128,9 @@ export function TimelineList({ entries }: { entries: ExperienceEntry[] }) {
         className="absolute inset-y-0 left-0 w-px origin-top bg-brand"
       />
       <ol ref={trackRef} className="pl-8">
-        {primary.map((entry) => (
+        {primary.map((entry) => {
+          const bullets = entry.description ? toBullets(entry.description) : [];
+          return (
           <li key={entry.id} className="relative mb-12 last:mb-0">
             <span className="absolute -left-[calc(2rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-background" />
             <p className="text-xs font-medium uppercase tracking-wide text-foreground/45">
@@ -107,13 +143,26 @@ export function TimelineList({ entries }: { entries: ExperienceEntry[] }) {
               {entry.org}
               {entry.location ? ` · ${entry.location}` : ""}
             </p>
-            {entry.description && (
-              <p className="mt-3 text-sm leading-relaxed text-foreground/70">
-                {entry.description}
-              </p>
-            )}
+            {entry.description &&
+              (bullets.length > 0 ? (
+                <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/70">
+                  {bullets.map((bullet, i) => (
+                    <li key={i} className="relative pl-4">
+                      {/* Absolute dot rather than list-disc so wrapped lines
+                          hang under the text, not under the marker. */}
+                      <span className="absolute left-0 top-[0.6em] h-1 w-1 rounded-full bg-brand/70" />
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-3 text-sm leading-relaxed text-foreground/70">
+                  {entry.description}
+                </p>
+              ))}
           </li>
-        ))}
+          );
+        })}
       </ol>
 
       {secondary.length > 0 && (
