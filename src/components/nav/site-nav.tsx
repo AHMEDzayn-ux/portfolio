@@ -7,14 +7,15 @@ import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { getLenisInstance } from "@/lib/lenis-instance";
 
+// Mirrors the section order in app/page.tsx — keep the two in step.
 const LINKS = [
   { href: "#about", label: "About" },
-  { href: "#skills", label: "Skills" },
   { href: "#projects", label: "Projects" },
-  { href: "#experience", label: "Experience" },
-  { href: "#education", label: "Education" },
   { href: "#publications", label: "Publications" },
   { href: "#achievements", label: "Achievements" },
+  { href: "#education", label: "Education" },
+  { href: "#skills", label: "Skills" },
+  { href: "#experience", label: "Experience" },
   { href: "#certifications", label: "Certifications" },
   { href: "#contact", label: "Contact" },
 ];
@@ -66,7 +67,7 @@ export function SiteNav() {
         <Link
           href="#"
           className={`font-heading text-lg font-semibold tracking-tight ${
-            scrolled ? "" : "text-white"
+            scrolled ? "" : "text-foreground"
           }`}
         >
           Ahmedh<span className="text-brand">.</span>
@@ -85,7 +86,7 @@ export function SiteNav() {
               className={`relative rounded-full px-3.5 py-1.5 text-sm transition-colors ${
                 scrolled
                   ? "text-foreground/70 hover:text-foreground"
-                  : "text-white/70 hover:text-white"
+                  : "text-foreground/70 hover:text-foreground"
               }`}
             >
               <AnimatePresence>
@@ -93,7 +94,7 @@ export function SiteNav() {
                   <motion.span
                     layoutId="nav-hover-pill"
                     className={`absolute inset-0 -z-10 rounded-full ${
-                      scrolled ? "bg-secondary" : "bg-white/10"
+                      scrolled ? "bg-secondary" : "bg-foreground/10"
                     }`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -113,7 +114,7 @@ export function SiteNav() {
         <div className="hidden items-center gap-4 lg:flex">
           <ThemeToggle
             className={
-              scrolled ? undefined : "border-white/25 text-white/80"
+              scrolled ? undefined : "border-foreground/25 text-foreground/80"
             }
           />
           <a
@@ -128,7 +129,7 @@ export function SiteNav() {
         <div className="flex items-center gap-3 lg:hidden">
           <ThemeToggle
             className={
-              scrolled ? undefined : "border-white/25 text-white/80"
+              scrolled ? undefined : "border-foreground/25 text-foreground/80"
             }
           />
           <button
@@ -136,7 +137,7 @@ export function SiteNav() {
             aria-label="Toggle menu"
             onClick={() => setMenuOpen((v) => !v)}
             className={`flex h-9 w-9 items-center justify-center rounded-full border ${
-              scrolled ? "border-border/60" : "border-white/25 text-white"
+              scrolled ? "border-border/60" : "border-foreground/25 text-foreground"
             }`}
           >
             {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}

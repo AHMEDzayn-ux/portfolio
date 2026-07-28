@@ -6,8 +6,7 @@ import type { Project } from "@/lib/data/types";
 
 /**
  * Home-page project carousel: three cards per view on desktop, two on tablet,
- * one on mobile. Behavior (mouse-follow flow, snapping, arrows, dots) lives
- * in FlowCarousel.
+ * one on mobile. Behavior (arrow-driven snapping, dots) lives in FlowCarousel.
  */
 export function ProjectsCarousel({
   projects,

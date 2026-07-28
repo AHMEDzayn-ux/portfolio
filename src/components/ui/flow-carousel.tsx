@@ -6,15 +6,7 @@ import {
   useEffect,
   useRef,
   useState,
-  type PointerEvent as ReactPointerEvent,
 } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -25,70 +17,39 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
 
+/** How long one arrow-driven move takes. Deliberately unhurried — the point is
+ * that you can read the cards as they arrive and land on the one you want. */
+const SLIDE_DURATION_MS = 700;
+
+const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+
 /**
- * Snapped horizontal carousel. On hover-capable devices the track follows the
- * mouse: moving right flows the row right — the target is quantized to whole
- * slide steps and eased by a spring, so it always comes to rest with slides
- * fully visible, never cut in half. Touch and reduced-motion users get native
- * mandatory scroll snapping with arrow buttons. Dots below in both modes.
+ * Snapped horizontal carousel driven entirely by its arrow buttons.
+ *
+ * An earlier version flowed the track toward the mouse on hover-capable
+ * devices, which made the row impossible to hold still: aiming at a card
+ * shifted it out from under the cursor. Now the track is a plain scroll-snap
+ * viewport — it only moves when you ask it to, via the arrows, the dots, a
+ * trackpad swipe, or keyboard focus — and each arrow press tweens exactly one
+ * step over ~0.7s so nothing whips past.
  */
 export function FlowCarousel({
   children,
   className,
   slideClassName,
   ariaLabel = "carousel",
-  flowStiffness = 90,
-  flowDamping = 22,
-  flowMass = 0.7,
 }: {
   children: React.ReactNode;
   className?: string;
   slideClassName: string;
   ariaLabel?: string;
-  /** Spring settings for how the row eases toward the cursor's target.
-   * Lower stiffness / higher damping & mass = slower, more gradual motion. */
-  flowStiffness?: number;
-  flowDamping?: number;
-  flowMass?: number;
 }) {
   const slides = Children.toArray(children);
   const reducedMotion = useReducedMotion();
-  const [hoverCapable, setHoverCapable] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setHoverCapable(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setHoverCapable(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  const pointerFlow = hoverCapable && !reducedMotion;
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const springX = useSpring(x, {
-    stiffness: flowStiffness,
-    damping: flowDamping,
-    mass: flowMass,
-  });
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Cards only enlarge while the row is actively flowing — idles back to
-  // flat the moment the pointer stops moving, so the resting layout never
-  // looks like the center card is wedged into its neighbors.
-  const flowIntensity = useMotionValue(0);
-  const smoothFlowIntensity = useSpring(flowIntensity, {
-    stiffness: 170,
-    damping: 26,
-  });
-  const idleTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  function markFlowing() {
-    flowIntensity.set(1);
-    if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
-    idleTimeoutRef.current = setTimeout(() => flowIntensity.set(0), 220);
-  }
 
   // step = distance between slide starts; positions = how many snapped stops
   // exist (last stop shows the final full view, no dangling half slide).
@@ -108,63 +69,62 @@ export function FlowCarousel({
   }, []);
 
   const [positions, setPositions] = useState(1);
-  const stepRef = useRef(1);
   useEffect(() => {
-    const measure = () => {
-      const m = getMetrics();
-      setPositions(m?.positions ?? 1);
-      stepRef.current = m?.step ?? 1;
-    };
+    const measure = () => setPositions(getMetrics()?.positions ?? 1);
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [getMetrics, slides.length, pointerFlow]);
+  }, [getMetrics, slides.length]);
 
-  function handleMove(e: ReactPointerEvent<HTMLDivElement>) {
-    const viewport = viewportRef.current;
-    const track = trackRef.current;
-    const m = getMetrics();
-    if (!viewport || !m || m.max <= 0) return;
+  // Hand-rolled tween instead of scrollTo({ behavior: "smooth" }): the native
+  // easing is browser-defined and lands faster than reads comfortably here.
+  const animationRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, []);
 
-    // Freeze the flow once the pointer is directly over a card so holding
-    // still on a photo (or aiming a click) doesn't keep shifting it out from
-    // under the cursor. Movement in the gaps between cards still flows.
-    if (track) {
-      const target = e.target as Node;
-      const overCard = Array.prototype.some.call(
-        track.children,
-        (child: Node) => child === target || (child as HTMLElement).contains(target)
-      );
-      if (overCard) return;
-    }
+  const scrollToOffset = useCallback(
+    (to: number) => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
 
-    const r = viewport.getBoundingClientRect();
-    const ratio = (e.clientX - r.left) / r.width;
-    // Dead margins at the edges, then quantize to whole slide steps so the
-    // spring always settles on a fully visible slide.
-    const t = Math.min(1, Math.max(0, (ratio - 0.08) / 0.84));
-    const index = Math.round(t * (m.positions - 1));
-    setCurrentIndex(index);
-    x.set(-Math.min(index * m.step, m.max));
-    markFlowing();
-  }
+      animationRef.current = undefined;
+      const from = viewport.scrollLeft;
+      const distance = to - from;
+      if (reducedMotion || Math.abs(distance) < 1) {
+        viewport.scrollLeft = to;
+        return;
+      }
+
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / SLIDE_DURATION_MS, 1);
+        viewport.scrollLeft = from + distance * easeOutQuart(t);
+        // Clearing the handle on the last frame matters: `handleScroll` treats
+        // a live handle as "a tween owns the offset" and ignores events, so a
+        // stale one would deafen it to every later manual scroll.
+        animationRef.current = t < 1 ? requestAnimationFrame(tick) : undefined;
+      };
+      animationRef.current = requestAnimationFrame(tick);
+    },
+    [reducedMotion]
+  );
 
   function goTo(index: number) {
     const m = getMetrics();
     if (!m) return;
     const clamped = Math.min(Math.max(index, 0), m.positions - 1);
     setCurrentIndex(clamped);
-    if (pointerFlow) {
-      x.set(-Math.min(clamped * m.step, m.max));
-    } else {
-      viewportRef.current?.scrollTo({
-        left: Math.min(clamped * m.step, m.max),
-        behavior: "smooth",
-      });
-    }
+    scrollToOffset(Math.min(clamped * m.step, m.max));
   }
 
+  // Manual scrolling (trackpad swipe, drag, focus) still owns the index — but
+  // not mid-tween, where our own writes would fight the value we just set.
   const handleScroll = useCallback(() => {
+    if (animationRef.current) return;
     const viewport = viewportRef.current;
     const m = getMetrics();
     if (!viewport || !m) return;
@@ -206,23 +166,25 @@ export function FlowCarousel({
     { scope: viewportRef, dependencies: [reducedMotion, slides.length] }
   );
 
+  const arrowClass =
+    "absolute top-1/2 z-10 hidden -translate-y-1/2 rounded-full border border-border/50 bg-background/80 p-2 backdrop-blur transition-all hover:border-brand/60 hover:text-brand disabled:opacity-25 disabled:hover:border-border/50 disabled:hover:text-foreground sm:flex";
+
   return (
     <div className={className}>
-      {/* -my-24/py-24 gives the scaled/lifted cards room to breathe without
-          clipping, while overflow-clip stops that transform bleed from
-          leaking into the page's own scrollable area (it was triggering a
-          spurious vertical scrollbar). overflow-clip (rather than hidden)
-          guarantees this box can never itself become a scroll container.
-          Negative margin cancels the padding's layout impact, so surrounding
-          spacing is unchanged. */}
+      {/* -my-24/py-24 gives the lifted cards room to breathe without clipping,
+          while overflow-clip stops that transform bleed from leaking into the
+          page's own scrollable area (it was triggering a spurious vertical
+          scrollbar). overflow-clip (rather than hidden) guarantees this box can
+          never itself become a scroll container. Negative margin cancels the
+          padding's layout impact, so surrounding spacing is unchanged. */}
       <div className="relative -my-24 overflow-clip py-24">
-        {!pointerFlow && (
+        {positions > 1 && (
           <button
             type="button"
             aria-label={`Previous ${ariaLabel}`}
             onClick={() => goTo(currentIndex - 1)}
             disabled={atStart}
-            className="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border/50 bg-background/80 p-2 backdrop-blur transition-all hover:border-brand/60 hover:text-brand disabled:opacity-30 disabled:hover:border-border/50 disabled:hover:text-foreground"
+            className={`${arrowClass} left-1`}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -230,44 +192,28 @@ export function FlowCarousel({
 
         <div
           ref={viewportRef}
-          onPointerMove={pointerFlow ? handleMove : undefined}
-          onScroll={!pointerFlow ? handleScroll : undefined}
-          className={
-            pointerFlow
-              ? // px buffer keeps the flow-scaled edge cards from being cropped by
-                // this container's own horizontal clip boundary.
-                "overflow-x-hidden overflow-y-visible px-8"
-              : "snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          }
+          onScroll={handleScroll}
+          className="snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <motion.div
-            ref={trackRef}
-            style={pointerFlow ? { x: springX } : undefined}
-            className="flex gap-6 py-4"
-          >
+          <div ref={trackRef} className="flex gap-6 py-4">
             {slides.map((slide, index) => (
-              <FlowSlide
+              <div
                 key={index}
-                index={index}
-                springX={springX}
-                flowIntensity={smoothFlowIntensity}
-                pointerFlow={pointerFlow}
-                stepRef={stepRef}
                 className={`shrink-0 snap-start snap-always ${slideClassName}`}
               >
                 {slide}
-              </FlowSlide>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
 
-        {!pointerFlow && (
+        {positions > 1 && (
           <button
             type="button"
             aria-label={`Next ${ariaLabel}`}
             onClick={() => goTo(currentIndex + 1)}
             disabled={atEnd}
-            className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border/50 bg-background/80 p-2 backdrop-blur transition-all hover:border-brand/60 hover:text-brand disabled:opacity-30 disabled:hover:border-border/50 disabled:hover:text-foreground"
+            className={`${arrowClass} right-1`}
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -293,55 +239,5 @@ export function FlowCarousel({
         </div>
       )}
     </div>
-  );
-}
-
-/** A single carousel slide that zooms up slightly as it flows toward center. */
-function FlowSlide({
-  children,
-  index,
-  springX,
-  flowIntensity,
-  pointerFlow,
-  stepRef,
-  className,
-}: {
-  children: React.ReactNode;
-  index: number;
-  springX: MotionValue<number>;
-  flowIntensity: MotionValue<number>;
-  pointerFlow: boolean;
-  stepRef: React.RefObject<number>;
-  className?: string;
-}) {
-  const spread = 1.6; // how many slide-steps the influence reaches
-
-  function proximityEase(v: number) {
-    const step = stepRef.current || 1;
-    const t = -v / step;
-    const distance = Math.min(Math.abs(index - t), spread);
-    // Smooth cosine falloff (0 at center → 1 at edge of influence) so
-    // neighboring cards ease in/out gently, like beads riding a curve.
-    return (1 - Math.cos((distance / spread) * Math.PI)) / 2;
-  }
-
-  const scale = useTransform([springX, flowIntensity], (latest) => {
-    if (!pointerFlow) return 1;
-    const [v, intensity] = latest as [number, number];
-    const eased = proximityEase(v);
-    const flowingScale = 1.1 - eased * 0.18;
-    return 1 + (flowingScale - 1) * intensity;
-  });
-  const y = useTransform([springX, flowIntensity], (latest) => {
-    if (!pointerFlow) return 0;
-    const [v, intensity] = latest as [number, number];
-    const eased = proximityEase(v);
-    return eased * 8 * intensity;
-  });
-
-  return (
-    <motion.div style={{ scale, y }} className={className}>
-      {children}
-    </motion.div>
   );
 }

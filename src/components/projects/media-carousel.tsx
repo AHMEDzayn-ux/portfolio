@@ -5,9 +5,9 @@ import { FlowCarousel } from "@/components/ui/flow-carousel";
 import type { ProjectMedia } from "@/lib/data/types";
 
 /**
- * Project-page gallery carousel: same mouse-follow flow, snapping, and dots
- * as the home-page projects carousel. Two slides per view on desktop, one on
- * mobile. Videos render with native controls.
+ * Project-page gallery carousel: same arrow-driven snapping and dots as the
+ * home-page projects carousel. Two slides per view on desktop, one on mobile.
+ * Videos render with native controls.
  */
 export function MediaCarousel({
   media,
@@ -23,9 +23,6 @@ export function MediaCarousel({
       className={className}
       ariaLabel="gallery"
       slideClassName="w-full sm:w-[calc((100%-1.5rem)/2)]"
-      flowStiffness={14}
-      flowDamping={18}
-      flowMass={1.6}
     >
       {media.map((item) => (
         <figure

@@ -67,13 +67,16 @@ export default async function Home() {
       <SiteNav />
       <main className="flex-1">
         <Hero profile={profile} />
+        {/* Order is deliberate: the work itself first (projects, publications,
+            achievements), then the credentials behind it. Keep this in step
+            with LINKS in site-nav.tsx. */}
         <About profile={profile} />
-        <Skills skills={skills} />
         <ProjectsGrid projects={projects} />
-        <ExperienceTimeline entries={experience} />
-        <Education entries={education} />
         <Publications publications={publications} />
         <Achievements achievements={achievements} />
+        <Education entries={education} />
+        <Skills skills={skills} />
+        <ExperienceTimeline entries={experience} />
         <Certifications certifications={certifications} />
         <ContactForm profile={profile} />
       </main>

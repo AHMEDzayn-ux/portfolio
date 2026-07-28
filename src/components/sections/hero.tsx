@@ -114,7 +114,10 @@ export function Hero({ profile }: { profile: Profile }) {
         id="hero"
         onPointerMove={handleMove}
         onPointerLeave={handleLeave}
-        className="relative isolate h-[100svh] w-full overflow-hidden bg-black text-white"
+        // Every painted layer below reads a `--hero-*` token so the whole
+        // canvas flips with the theme (see globals.css) — light mode gets a
+        // paper-bright hero instead of a black slab the toggle can't touch.
+        className="relative isolate h-[100svh] w-full overflow-hidden bg-[var(--hero-surface)] text-foreground transition-colors duration-500"
       >
         {/* Background glows — deepest layer */}
         <motion.div
@@ -131,8 +134,8 @@ export function Hero({ profile }: { profile: Profile }) {
               transition={{ duration: 1.1, delay: 0, ease: "easeOut" }}
               className="absolute inset-0"
             >
-              <div className="absolute left-1/2 top-1/2 h-[95vh] w-[120vw] max-h-[980px] max-w-[1800px] -translate-x-[62%] -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(96,152,222,0.44),rgba(96,152,222,0.22)_44%,transparent_78%)] blur-3xl" />
-              <div className="absolute left-1/2 top-1/2 h-[86vh] w-[112vw] max-h-[900px] max-w-[1700px] -translate-x-[38%] -translate-y-[46%] rounded-full bg-[radial-gradient(ellipse,rgba(236,138,62,0.4),rgba(236,138,62,0.2)_44%,transparent_78%)] blur-3xl" />
+              <div className="absolute left-1/2 top-1/2 h-[95vh] w-[120vw] max-h-[980px] max-w-[1800px] -translate-x-[62%] -translate-y-1/2 rounded-full bg-[image:var(--hero-glow-cool)] blur-3xl" />
+              <div className="absolute left-1/2 top-1/2 h-[86vh] w-[112vw] max-h-[900px] max-w-[1700px] -translate-x-[38%] -translate-y-[46%] rounded-full bg-[image:var(--hero-glow-warm)] blur-3xl" />
             </motion.div>
           </motion.div>
         </motion.div>
@@ -191,10 +194,7 @@ export function Hero({ profile }: { profile: Profile }) {
                       fetchPriority="high"
                       decoding="async"
                       className="h-full w-auto max-w-[94vw] object-contain object-bottom"
-                      style={{
-                        filter:
-                          "contrast(1.06) saturate(0.94) brightness(0.98)",
-                      }}
+                      style={{ filter: "var(--hero-portrait-filter)" }}
                     />
                   </motion.div>
                 </div>
@@ -203,16 +203,17 @@ export function Hero({ profile }: { profile: Profile }) {
           </motion.div>
         </motion.div>
 
-        {/* Vignette above the portrait — darkens the cropped edges into black */}
-        <div className="pointer-events-none absolute inset-0 z-30 bg-[radial-gradient(ellipse_at_center,transparent_28%,rgba(0,0,0,0.9)_100%)]" />
+        {/* Vignette above the portrait — closes the cropped edges into the
+          surface colour (black in dark, near-white in light) */}
+        <div className="pointer-events-none absolute inset-0 z-30 bg-[image:var(--hero-vignette)]" />
 
         {/* Legibility gradient under the text + blend into the next section.
-          Two stacked gradients dissolve the portrait's cropped bottom into
-          solid black — no backdrop-blur band here on purpose: a full-width
+          Two stacked gradients dissolve the portrait's cropped bottom into the
+          hero surface — no backdrop-blur band here on purpose: a full-width
           backdrop-filter re-reads and re-blurs the whole region every
           composited frame, which stuttered the load for no visible gain. */}
-        <div className="pointer-events-none absolute inset-0 z-40 bg-gradient-to-t from-black/85 via-transparent to-black/25" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-32 bg-gradient-to-b from-transparent to-black" />
+        <div className="pointer-events-none absolute inset-0 z-40 bg-[image:var(--hero-scrim)]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-32 bg-gradient-to-b from-transparent to-[var(--hero-surface)]" />
 
         {/* Text */}
         <motion.div
@@ -243,7 +244,7 @@ export function Hero({ profile }: { profile: Profile }) {
             </motion.h1>
             <motion.p
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-6 max-w-xl text-balance text-lg text-white/70 sm:text-xl"
+              className="mt-6 max-w-xl text-balance text-lg text-foreground/70 sm:text-xl"
             >
               {profile.short_tagline}
             </motion.p>
@@ -261,7 +262,7 @@ export function Hero({ profile }: { profile: Profile }) {
                 <a
                   href="/api/resume"
                   download
-                  className="flex items-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-medium text-white/90 backdrop-blur-sm transition-colors hover:border-brand/70 hover:text-white"
+                  className="flex items-center gap-2 rounded-full border border-foreground/25 px-6 py-3 text-sm font-medium text-foreground/90 backdrop-blur-sm transition-colors hover:border-brand/70 hover:text-foreground"
                 >
                   <Download className="h-4 w-4" />
                   Resume
@@ -282,7 +283,7 @@ export function Hero({ profile }: { profile: Profile }) {
           <motion.span
             animate={reduced ? undefined : { y: [0, 6, 0] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-            className="flex items-center gap-2 rounded-full border border-white/12 bg-black/30 px-4 py-2 text-[0.65rem] font-medium uppercase tracking-[0.28em] text-white/72 backdrop-blur-md transition-colors hover:border-white/20 hover:text-white"
+            className="flex items-center gap-2 rounded-full border border-foreground/15 bg-[var(--hero-chip-bg)] px-4 py-2 text-[0.65rem] font-medium uppercase tracking-[0.28em] text-foreground/70 backdrop-blur-md transition-colors hover:border-foreground/25 hover:text-foreground"
           >
             <span className="font-sans">Scroll</span>
             <ArrowDown className="h-3.5 w-3.5" strokeWidth={1.9} />

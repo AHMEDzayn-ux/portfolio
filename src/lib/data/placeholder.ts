@@ -5,7 +5,7 @@ import type { ExperienceEntry, Profile, Project, Skill } from "./types";
 
 export const placeholderProfile: Profile = {
   full_name: "Ahmedh M.R.R",
-  title: "Software Developer",
+  title: "AI/ML · SOFTWARE ENGINEERING · UI/UX",
   short_tagline: "I build web apps and systems that hold up under real-world pressure.",
   bio: "I'm a software developer who likes turning messy, real-world problems — disaster response, logistics, bookings — into software that actually gets used. Comfortable across the stack, from React front ends to the data and AI systems behind them.",
   avatar_url: null,

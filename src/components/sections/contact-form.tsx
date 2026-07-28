@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FolderGit2, Link as LinkIcon, Mail, MessageCircle, Send } from "lucide-react";
+import { FolderGit2, Link as LinkIcon, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -90,16 +90,10 @@ export function ContactForm({ profile }: { profile: Profile }) {
           </button>
         </form>
 
+        {/* Deliberately no phone/WhatsApp link: a personal mobile number on a
+            public page is scraped for spam and can't be taken back once it is.
+            The form above and the email below are the reachable channels. */}
         <div className="flex flex-col gap-4">
-          <a
-            href="https://wa.me/94771012347"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-xl border border-border/70 px-5 py-4 text-sm transition-colors hover:border-brand/50 hover:text-brand"
-          >
-            <MessageCircle className="h-4 w-4" />
-            WhatsApp
-          </a>
           {profile.email && (
             <a
               href={`mailto:${profile.email}`}

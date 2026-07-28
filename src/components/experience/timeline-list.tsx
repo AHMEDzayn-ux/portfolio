@@ -18,7 +18,32 @@ function formatRange(entry: ExperienceEntry) {
   return `${start} — ${end}`;
 }
 
+/**
+ * Roles outside the technical track (retail, call-centre, hospitality) still
+ * belong on the page — they show a work history — but giving them the same
+ * headline-plus-paragraph block as an engineering role buries the engineering
+ * roles in the middle of a long scroll. Matching ones render as a single
+ * condensed line under a quieter heading instead. Anything unmatched is
+ * treated as technical, so a new role always gets the full treatment by
+ * default rather than being silently demoted.
+ */
+const NON_TECHNICAL_ROLE =
+  /\b(call ?cent(er|re)|customer (service|support|care)|tele(marketing|sales|caller)|cashier|sales ?(assistant|associate|rep|representative|executive)?|retail|waiter|waitress|barista|host(ess)?|receptionist|front desk|steward|delivery|driver|security guard|packer|store ?keeper|data entry|teller|promoter|crew member)\b/i;
+
+function isNonTechnical(entry: ExperienceEntry) {
+  return (
+    entry.type === "work" &&
+    NON_TECHNICAL_ROLE.test(entry.role) &&
+    // "Sales Engineer" or "Support Engineer" are technical despite the match.
+    !/\b(engineer|developer|programmer|analyst|scientist|architect|devops|designer|intern(ship)? .*(software|data|ai))\b/i.test(
+      entry.role
+    )
+  );
+}
+
 export function TimelineList({ entries }: { entries: ExperienceEntry[] }) {
+  const primary = entries.filter((entry) => !isNonTechnical(entry));
+  const secondary = entries.filter(isNonTechnical);
   const trackRef = useRef<HTMLOListElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
@@ -69,7 +94,7 @@ export function TimelineList({ entries }: { entries: ExperienceEntry[] }) {
         className="absolute inset-y-0 left-0 w-px origin-top bg-brand"
       />
       <ol ref={trackRef} className="pl-8">
-        {entries.map((entry) => (
+        {primary.map((entry) => (
           <li key={entry.id} className="relative mb-12 last:mb-0">
             <span className="absolute -left-[calc(2rem+5px)] top-1.5 h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-background" />
             <p className="text-xs font-medium uppercase tracking-wide text-foreground/45">
@@ -90,6 +115,30 @@ export function TimelineList({ entries }: { entries: ExperienceEntry[] }) {
           </li>
         ))}
       </ol>
+
+      {secondary.length > 0 && (
+        <div className="mt-12 pl-8">
+          <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-foreground/40">
+            Earlier roles
+          </h3>
+          <ul className="mt-4 space-y-2.5">
+            {secondary.map((entry) => (
+              <li
+                key={entry.id}
+                className="flex flex-wrap items-baseline gap-x-2 text-sm text-foreground/55"
+              >
+                <span className="text-foreground/75">{entry.role}</span>
+                <span className="text-foreground/30">·</span>
+                <span>{entry.org}</span>
+                <span className="text-foreground/30">·</span>
+                <span className="tabular-nums text-foreground/45">
+                  {formatRange(entry)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

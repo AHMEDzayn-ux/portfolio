@@ -85,6 +85,45 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.62 0.17 230);
+
+  /* Hero surface. The hero paints its own full-bleed canvas — glows, vignette,
+     scrims — so every layer needs a value per theme. Keeping them as tokens
+     here means the two themes sit side by side instead of being scattered
+     across `dark:` variants on a dozen gradient utilities. Light mode is a
+     bright paper canvas: the glows read as soft washes rather than lamps, the
+     vignette closes to the page background so the hero blends into the section
+     below, and the portrait gets a grounding shadow so its cutout edge doesn't
+     look pasted on. */
+  --hero-surface: var(--background);
+  /* Pushed harder than a "tasteful" light wash would be: over near-white these
+     read as soft colour, not as lamps, so a timid alpha just looks like a blank
+     page. */
+  --hero-glow-cool: radial-gradient(
+    ellipse,
+    rgba(96, 152, 222, 0.46),
+    rgba(96, 152, 222, 0.2) 44%,
+    transparent 76%
+  );
+  --hero-glow-warm: radial-gradient(
+    ellipse,
+    rgba(236, 138, 62, 0.42),
+    rgba(236, 138, 62, 0.18) 44%,
+    transparent 76%
+  );
+  --hero-vignette: radial-gradient(
+    ellipse at center,
+    transparent 32%,
+    rgba(238, 240, 244, 0.78) 100%
+  );
+  --hero-scrim: linear-gradient(
+    to top,
+    rgba(240, 242, 245, 0.9),
+    rgba(240, 242, 245, 0.1) 46%,
+    rgba(246, 247, 249, 0.35)
+  );
+  --hero-portrait-filter: contrast(1.02) saturate(1) brightness(1.01)
+    drop-shadow(0 22px 45px rgba(15, 23, 42, 0.22));
+  --hero-chip-bg: rgba(255, 255, 255, 0.5);
 }
 
 .dark {
@@ -121,6 +160,35 @@
   --sidebar-accent-foreground: oklch(0.97 0.005 240);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.75 0.15 220);
+
+  /* Hero surface — the original cinematic look: pure black canvas, glows that
+     actually glow, and edges that fall off into black. */
+  --hero-surface: #000;
+  --hero-glow-cool: radial-gradient(
+    ellipse,
+    rgba(96, 152, 222, 0.44),
+    rgba(96, 152, 222, 0.22) 44%,
+    transparent 78%
+  );
+  --hero-glow-warm: radial-gradient(
+    ellipse,
+    rgba(236, 138, 62, 0.4),
+    rgba(236, 138, 62, 0.2) 44%,
+    transparent 78%
+  );
+  --hero-vignette: radial-gradient(
+    ellipse at center,
+    transparent 28%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  --hero-scrim: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    transparent 50%,
+    rgba(0, 0, 0, 0.25)
+  );
+  --hero-portrait-filter: contrast(1.06) saturate(0.94) brightness(0.98);
+  --hero-chip-bg: rgba(0, 0, 0, 0.3);
 }
 
 @layer base {
