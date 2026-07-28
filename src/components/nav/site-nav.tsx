@@ -12,11 +12,11 @@ const LINKS = [
   { href: "#about", label: "About" },
   { href: "#projects", label: "Projects" },
   { href: "#publications", label: "Publications" },
+  { href: "#certifications", label: "Certifications" },
   { href: "#achievements", label: "Achievements" },
   { href: "#education", label: "Education" },
   { href: "#skills", label: "Skills" },
   { href: "#experience", label: "Experience" },
-  { href: "#certifications", label: "Certifications" },
   { href: "#contact", label: "Contact" },
 ];
 

@@ -3,7 +3,7 @@ import type { Profile } from "@/lib/data/types";
 
 export function About({ profile }: { profile: Profile }) {
   return (
-    <section id="about" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
+    <section id="about" className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
       <Reveal>
         <p className="text-sm font-medium uppercase tracking-[0.3em] text-brand">
           About

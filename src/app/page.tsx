@@ -73,11 +73,11 @@ export default async function Home() {
         <About profile={profile} />
         <ProjectsGrid projects={projects} />
         <Publications publications={publications} />
+        <Certifications certifications={certifications} />
         <Achievements achievements={achievements} />
         <Education entries={education} />
         <Skills skills={skills} />
         <ExperienceTimeline entries={experience} />
-        <Certifications certifications={certifications} />
         <ContactForm profile={profile} />
       </main>
       <Footer profile={profile} />

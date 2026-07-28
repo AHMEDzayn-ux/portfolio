@@ -97,7 +97,7 @@ export function Skills({ skills }: { skills: Skill[] }) {
     .filter((group) => group.items.length > 0);
 
   return (
-    <section id="skills" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
+    <section id="skills" className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
       <Reveal>
         <p className="text-sm font-medium uppercase tracking-[0.3em] text-brand">
           Skills

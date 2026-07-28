@@ -4,7 +4,7 @@ import type { Project } from "@/lib/data/types";
 
 export function ProjectsGrid({ projects }: { projects: Project[] }) {
   return (
-    <section id="projects" className="mx-auto max-w-6xl px-6 py-14 sm:py-16">
+    <section id="projects" className="mx-auto max-w-6xl px-6 py-10 sm:py-12">
       <Reveal>
         <p className="text-sm font-medium uppercase tracking-[0.3em] text-brand">
           Projects
