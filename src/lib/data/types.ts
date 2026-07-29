@@ -78,6 +78,7 @@ export type Publication = {
   publication_date: string;
   url: string | null;
   description: string | null;
+  image_url: string | null;
 };
 
 export type Achievement = {

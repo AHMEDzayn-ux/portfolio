@@ -12,6 +12,7 @@ export const publicationSchema = z.object({
   publication_date: z.string().trim().min(1, "Publication date is required."),
   url: z.string().trim().url("Must be a valid URL.").or(z.literal("")),
   description: z.string().trim().max(2000).or(z.literal("")),
+  image_url: z.string().trim().url("Must be a valid URL.").or(z.literal("")),
   sort_order: z.number().int(),
 });
 

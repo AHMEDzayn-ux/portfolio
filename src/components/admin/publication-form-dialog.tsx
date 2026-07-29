@@ -16,8 +16,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { MediaUploader } from "@/components/admin/media-uploader";
 import { createPublication, updatePublication } from "@/lib/actions/publications";
 import { publicationSchema, type PublicationInput } from "@/lib/validations/publication";
+import type { ProjectMedia } from "@/lib/data/types";
 import type { Database } from "@/types/database.types";
 
 type PublicationRow = Database["public"]["Tables"]["publications"]["Row"];
@@ -25,10 +27,14 @@ type PublicationRow = Database["public"]["Tables"]["publications"]["Row"];
 export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
+  const [media, setMedia] = useState<ProjectMedia[]>(
+    entry?.image_url ? [{ url: entry.image_url, type: "image" }] : []
+  );
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<PublicationInput>({
     resolver: zodResolver(publicationSchema),
@@ -41,6 +47,7 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
           publication_date: entry.publication_date,
           url: entry.url ?? "",
           description: entry.description ?? "",
+          image_url: entry.image_url ?? "",
           sort_order: entry.sort_order,
         }
       : {
@@ -51,9 +58,15 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
           publication_date: "",
           url: "",
           description: "",
+          image_url: "",
           sort_order: 0,
         },
   });
+
+  function handleMediaChange(next: ProjectMedia[]) {
+    setMedia(next);
+    setValue("image_url", next[0]?.url ?? "", { shouldValidate: true });
+  }
 
   async function onSubmit(data: PublicationInput) {
     setPending(true);
@@ -65,7 +78,10 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
     if (result.ok) {
       toast.success(entry ? "Publication updated." : "Publication added.");
       setOpen(false);
-      if (!entry) reset();
+      if (!entry) {
+        reset();
+        setMedia([]);
+      }
     } else {
       toast.error(result.error);
     }
@@ -127,6 +143,20 @@ export function PublicationFormDialog({ entry }: { entry?: PublicationRow }) {
             <Label htmlFor="url">Link</Label>
             <Input id="url" placeholder="https://" {...register("url")} />
             {errors.url && <p className="text-xs text-destructive">{errors.url.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Cover image</Label>
+            <input type="hidden" {...register("image_url")} />
+            <MediaUploader
+              media={media}
+              onChange={handleMediaChange}
+              maxItems={1}
+              addLabel="Upload cover image"
+            />
+            {errors.image_url && (
+              <p className="text-xs text-destructive">{errors.image_url.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">

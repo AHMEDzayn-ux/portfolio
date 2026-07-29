@@ -23,6 +23,19 @@ export default async function PublicationPage({
   return (
     <main>
       <div className="relative overflow-hidden bg-black">
+        {publication.image_url && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={publication.image_url}
+              alt=""
+              aria-hidden
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-center opacity-50"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/60 to-black" />
+          </>
+        )}
         <div className="relative mx-auto max-w-5xl px-6 pb-14 pt-28 text-white sm:pt-32">
           <Link
             href="/#publications"
