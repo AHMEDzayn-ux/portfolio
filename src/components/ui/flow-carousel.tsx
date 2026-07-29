@@ -260,10 +260,12 @@ export function FlowCarousel({
     { scope: viewportRef, dependencies: [reducedMotion, slides.length] }
   );
 
-  // Big enough to aim at without hunting, and dimmed until you go for it so it
-  // never competes with the cards it sits over.
+  // Big enough to aim at without hunting. On hover-capable devices they stay
+  // dimmed until you go for them so they never compete with the cards; touch
+  // devices have no hover to reveal them with, so they're fully visible there
+  // from the start.
   const arrowClass =
-    "absolute top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/85 opacity-55 shadow-lg backdrop-blur transition-all duration-200 hover:scale-105 hover:border-brand/60 hover:text-brand hover:opacity-100 focus-visible:opacity-100 active:scale-95 disabled:opacity-20 disabled:hover:scale-100 disabled:hover:border-border/60 disabled:hover:text-foreground sm:flex";
+    "absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/85 opacity-90 shadow-lg backdrop-blur transition-all duration-200 hover:scale-105 hover:border-brand/60 hover:text-brand active:scale-95 disabled:opacity-20 disabled:hover:scale-100 disabled:hover:border-border/60 disabled:hover:text-foreground sm:h-12 sm:w-12 sm:opacity-55 sm:hover:opacity-100 sm:focus-visible:opacity-100";
 
   return (
     <div className={className}>

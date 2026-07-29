@@ -169,7 +169,14 @@ export function Hero({ profile }: { profile: Profile }) {
               className="absolute inset-0"
             >
               {PORTRAIT_SRC && (
-                <div className="absolute bottom-[3svh] right-0 h-[84svh] sm:right-[2%] lg:right-[4%]">
+                // The source image is a 1:1 square. Sized by height alone (the
+                // sm+ behaviour) that forces its width to match, which on a
+                // narrow phone overruns the viewport and gets clamped back
+                // down — so the "84svh" portrait was actually rendering at
+                // barely half that. Below sm it's cropped to a tall panel with
+                // object-cover instead, so it fills the mobile viewport the
+                // way the full-height square does on wider screens.
+                <div className="absolute inset-0 h-[62svh] w-full sm:bottom-[3svh] sm:right-0 sm:left-auto sm:top-auto sm:h-[84svh] sm:w-auto sm:right-[2%] lg:right-[4%]">
                   {/* Breathing zoom — ~2% over 11s, its own wrapper so it never
                     fights the intro scale settle above. Delayed until the intro
                     settle has finished so the load window only ever runs one
@@ -197,7 +204,7 @@ export function Hero({ profile }: { profile: Profile }) {
                       // image late (~1.5s load delay) instead of reusing it.
                       fetchPriority="high"
                       decoding="async"
-                      className="h-full w-auto max-w-[94vw] object-contain object-bottom"
+                      className="h-full w-full object-cover object-[center_15%] sm:w-auto sm:max-w-[94vw] sm:object-contain sm:object-bottom"
                       style={{ filter: "var(--hero-portrait-filter)" }}
                     />
                   </motion.div>
@@ -228,17 +235,17 @@ export function Hero({ profile }: { profile: Profile }) {
             variants={reduced ? reducedTextContainer : textContainer}
             initial="hidden"
             animate="show"
-            className="mx-auto w-full max-w-6xl px-6 pb-24"
+            className="mx-auto w-full max-w-6xl px-6 pb-12 sm:pb-24"
           >
             <motion.p
               variants={reduced ? reducedTextItem : textItem}
-              className="text-sm font-medium uppercase tracking-[0.35em] text-brand sm:text-base"
+              className="text-xs font-medium uppercase tracking-[0.3em] text-brand sm:text-sm sm:tracking-[0.35em] sm:text-base"
             >
               {profile.title}
             </motion.p>
             <motion.h1
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-5 max-w-3xl font-heading text-6xl font-semibold leading-[1.02] tracking-tight sm:text-7xl lg:text-8xl"
+              className="mt-3 max-w-3xl font-heading text-4xl font-semibold leading-[1.02] tracking-tight sm:mt-5 sm:text-7xl lg:text-8xl"
             >
               {FULL_NAME.split(" ").map((word, i) => (
                 <span key={i} className="block">
@@ -248,13 +255,13 @@ export function Hero({ profile }: { profile: Profile }) {
             </motion.h1>
             <motion.p
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-6 max-w-xl text-balance text-lg text-foreground/70 sm:text-xl"
+              className="mt-4 max-w-xl text-balance text-base text-foreground/70 sm:mt-6 sm:text-xl"
             >
               {profile.short_tagline}
             </motion.p>
             <motion.div
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-9 flex flex-wrap items-center gap-4"
+              className="mt-6 flex flex-wrap items-center gap-3 sm:mt-9 sm:gap-4"
             >
               <a
                 href="#projects"
