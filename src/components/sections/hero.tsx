@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useRef,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
+import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import {
   motion,
   useMotionValue,
@@ -23,7 +20,7 @@ import type { Profile } from "@/lib/data/types";
 const PORTRAIT_SRC = "/portrait.webp";
 
 // Fixed in code rather than fetched from Supabase.
-const FULL_NAME = "Ruzayn Ahmedh";
+const FULL_NAME = "Ruzaini Ahmedh";
 
 // The text flows in as one continuous cascade that overlaps the portrait's
 // scale-settle — no dead gap between the photo painting and the name appearing.
@@ -176,9 +173,7 @@ export function Hero({ profile }: { profile: Profile }) {
                 // barely half that. Below sm it's cropped to a tall panel with
                 // object-cover instead, so it fills the mobile viewport the
                 // way the full-height square does on wider screens.
-                <div
-                  className="absolute inset-0 h-[62svh] w-full [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)] sm:bottom-[3svh] sm:right-0 sm:left-auto sm:top-auto sm:h-[84svh] sm:w-auto sm:right-[2%] sm:[mask-image:none] lg:right-[4%]"
-                >
+                <div className="absolute inset-0 h-[62svh] w-full [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)] sm:bottom-[3svh] sm:right-0 sm:left-auto sm:top-auto sm:h-[84svh] sm:w-auto sm:right-[2%] sm:[mask-image:none] lg:right-[4%]">
                   {/* Breathing zoom — ~2% over 11s, its own wrapper so it never
                     fights the intro scale settle above. Delayed until the intro
                     settle has finished so the load window only ever runs one
