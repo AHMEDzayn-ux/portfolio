@@ -166,14 +166,10 @@ export function Hero({ profile }: { profile: Profile }) {
               className="absolute inset-0"
             >
               {PORTRAIT_SRC && (
-                // The source image is a 1:1 square. Sized by height alone (the
-                // sm+ behaviour) that forces its width to match, which on a
-                // narrow phone overruns the viewport and gets clamped back
-                // down — so the "84svh" portrait was actually rendering at
-                // barely half that. Below sm it's cropped to a tall panel with
-                // object-cover instead, so it fills the mobile viewport the
-                // way the full-height square does on wider screens.
-                <div className="absolute inset-0 h-[62svh] w-full [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)] sm:bottom-[3svh] sm:right-0 sm:left-auto sm:top-auto sm:h-[84svh] sm:w-auto sm:right-[2%] sm:[mask-image:none] lg:right-[4%]">
+                // The source image is square. On phones it is anchored to the
+                // bottom behind the copy and nudged right to preserve a quiet
+                // text area; larger screens keep the full-height composition.
+                <div className="absolute bottom-[5svh] left-[4%] h-[76svh] w-[108%] [mask-image:linear-gradient(to_bottom,transparent_0%,black_12%,black_78%,transparent_100%)] md:bottom-[3svh] md:right-[2%] md:left-auto md:h-[84svh] md:w-auto md:[mask-image:none] lg:right-[4%]">
                   {/* Breathing zoom — ~2% over 11s, its own wrapper so it never
                     fights the intro scale settle above. Delayed until the intro
                     settle has finished so the load window only ever runs one
@@ -201,8 +197,7 @@ export function Hero({ profile }: { profile: Profile }) {
                       // image late (~1.5s load delay) instead of reusing it.
                       fetchPriority="high"
                       decoding="async"
-                      className="h-full w-full object-cover object-[center_15%] sm:w-auto sm:max-w-[94vw] sm:object-contain sm:object-bottom"
-                      style={{ filter: "var(--hero-portrait-filter)" }}
+                      className="h-full w-full object-contain object-bottom [filter:var(--hero-mobile-portrait-filter)] md:w-auto md:max-w-[94vw] md:[filter:var(--hero-portrait-filter)]"
                     />
                   </motion.div>
                 </div>
@@ -213,14 +208,14 @@ export function Hero({ profile }: { profile: Profile }) {
 
         {/* Vignette above the portrait — closes the cropped edges into the
           surface colour (black in dark, near-white in light) */}
-        <div className="pointer-events-none absolute inset-0 z-30 bg-[image:var(--hero-vignette)]" />
+        <div className="pointer-events-none absolute inset-0 z-30 bg-[image:var(--hero-mobile-vignette)] md:bg-[image:var(--hero-vignette)]" />
 
         {/* Legibility gradient under the text + blend into the next section.
           Two stacked gradients dissolve the portrait's cropped bottom into the
           hero surface — no backdrop-blur band here on purpose: a full-width
           backdrop-filter re-reads and re-blurs the whole region every
           composited frame, which stuttered the load for no visible gain. */}
-        <div className="pointer-events-none absolute inset-0 z-40 bg-[image:var(--hero-scrim)]" />
+        <div className="pointer-events-none absolute inset-0 z-40 bg-[image:var(--hero-mobile-scrim)] md:bg-[image:var(--hero-scrim)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-32 bg-gradient-to-b from-transparent to-[var(--hero-surface)]" />
 
         {/* Text */}
@@ -232,17 +227,17 @@ export function Hero({ profile }: { profile: Profile }) {
             variants={reduced ? reducedTextContainer : textContainer}
             initial="hidden"
             animate="show"
-            className="mx-auto w-full max-w-6xl px-6 pb-12 sm:pb-24"
+            className="mx-auto w-full max-w-6xl px-6 pb-24"
           >
             <motion.p
               variants={reduced ? reducedTextItem : textItem}
-              className="text-xs font-medium uppercase tracking-[0.3em] text-brand sm:text-sm sm:tracking-[0.35em] sm:text-base"
+              className="text-xs font-medium uppercase tracking-[0.3em] text-brand sm:text-base sm:tracking-[0.35em]"
             >
               {profile.title}
             </motion.p>
             <motion.h1
               variants={reduced ? reducedTextItem : textItem}
-              className="mt-3 max-w-3xl font-heading text-4xl font-semibold leading-[1.02] tracking-tight sm:mt-5 sm:text-7xl lg:text-8xl"
+              className="mt-3 max-w-3xl font-heading text-[2.75rem] font-semibold leading-[0.98] tracking-tight sm:mt-5 sm:text-7xl sm:leading-[1.02] lg:text-8xl"
             >
               {FULL_NAME.split(" ").map((word, i) => (
                 <span key={i} className="block">
@@ -270,7 +265,7 @@ export function Hero({ profile }: { profile: Profile }) {
                 <a
                   href="/api/resume"
                   download
-                  className="flex items-center gap-2 rounded-full border border-foreground/25 px-6 py-3 text-sm font-medium text-foreground/90 backdrop-blur-sm transition-colors hover:border-brand/70 hover:text-foreground"
+                  className="flex items-center gap-2 rounded-full border border-foreground/25 px-6 py-3 text-sm font-medium text-foreground/90 transition-colors hover:border-brand/70 hover:text-foreground md:backdrop-blur-sm"
                 >
                   <Download className="h-4 w-4" />
                   Resume
@@ -291,7 +286,7 @@ export function Hero({ profile }: { profile: Profile }) {
           <motion.span
             animate={reduced ? undefined : { y: [0, 6, 0] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-            className="flex items-center gap-2 rounded-full border border-foreground/15 bg-[var(--hero-chip-bg)] px-4 py-2 text-[0.65rem] font-medium uppercase tracking-[0.28em] text-foreground/70 backdrop-blur-md transition-colors hover:border-foreground/25 hover:text-foreground"
+            className="flex items-center gap-2 rounded-full border border-foreground/15 bg-[var(--hero-chip-bg)] px-4 py-2 text-[0.65rem] font-medium uppercase tracking-[0.28em] text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground md:backdrop-blur-md"
           >
             <span className="font-sans">Scroll</span>
             <ArrowDown className="h-3.5 w-3.5" strokeWidth={1.9} />

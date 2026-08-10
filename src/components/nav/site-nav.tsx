@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Code2, Menu, X } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { getLenisInstance } from "@/lib/lenis-instance";
 
@@ -60,18 +59,23 @@ export function SiteNav() {
       <div
         className={`mx-auto flex max-w-6xl items-center justify-between px-6 py-4 transition-colors duration-300 ${
           scrolled
-            ? "bg-background/70 backdrop-blur-md border-b border-border/60"
+            ? "border-b border-border/60 bg-background/95 lg:bg-background/70 lg:backdrop-blur-md"
             : "bg-transparent"
         }`}
       >
-        <Link
-          href="#"
-          className={`font-heading text-lg font-semibold tracking-tight ${
-            scrolled ? "" : "text-foreground"
+        <a
+          href="#hero"
+          onClick={(e) => handleNavClick(e, "#hero")}
+          aria-label="Back to the top"
+          title="Home"
+          className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors hover:border-brand/60 hover:text-brand ${
+            scrolled
+              ? "border-border/70 bg-background/80"
+              : "border-foreground/25 text-foreground"
           }`}
         >
-          Ahmedh<span className="text-brand">.</span>
-        </Link>
+          <Code2 className="h-[1.1rem] w-[1.1rem]" strokeWidth={1.8} />
+        </a>
 
         <nav
           className="hidden items-center gap-0.5 lg:flex"
@@ -152,7 +156,7 @@ export function SiteNav() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-4 mb-4 flex flex-col gap-1 rounded-2xl border border-border/60 bg-background/95 p-4 backdrop-blur-md lg:hidden"
+            className="mx-4 mb-4 flex flex-col gap-1 rounded-2xl border border-border/60 bg-background/95 p-4 lg:hidden"
           >
             {LINKS.map((link) => (
               <a
